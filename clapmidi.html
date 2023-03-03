@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>clapmidi</title>
+        <style>
+            .frames {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>clapmidi</h1>
+        <div>
+            <input class="fps" type="number" value="30" />
+            <span>FPS</span>
+        </div>
+        <div>
+            <span>Frames: </span>
+            <input class="frames" type="text" placeholder="frame1,frame2,frame3..." />
+            <span>or</span>
+            <input class="minutes" type="number" placeholder="Minutes" />
+            <span>Minutes</span>
+            <select class="span">
+                <option value="1">1 framerate span</option>
+                <option value="2">1/2 framerate span</option>
+                <option value="3">1/3 framerate span</option>
+            </select>
+            <select class="blur">
+                <option value="0">0 frames blur</option>
+                <option value="2">1/2 frames blur</option>
+                <option value="10">1/10 frames blur</option>
+                <option value="20">1/20 frames blur</option>
+            </select>
+            <button class="minutes-btn">Update Frames by Minutes</button>
+        </div>
+        <div>
+            <select class="type">
+                <option value="drum">Drum (D#1)</option>
+                <option value="clap">El Clapo / Hand Clap Studio (E2)</option>
+                <option value="chromaphone">Chromaphone (C4)</option>
+            </select>
+            <button class="dl-btn">Download .midi</button>
+        </div>
+        <div>
+            <span>⚠️ 60 bpm</span>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@2.1.0/browser/midiwriter.js"></script>
+        <script>
+            const getFramerate = () => parseInt(document.querySelector('.fps').value)
+            const rnd = (v) => Math.floor(Math.random() * v)
+            const wait = (t) => new Promise((resolve) => setTimeout(resolve, t))
+
+            document.querySelector('.minutes-btn').addEventListener('click', async () => {
+                document.querySelector('.frames').value = ''
+                await wait(500)
+                const framerate = getFramerate()
+                const maxFrameCnt = parseFloat(document.querySelector('.minutes').value) * 60 * framerate
+                const blurOptionVal = parseInt(document.querySelector('.blur').value)
+                const blurVal = blurOptionVal === 0 ? 0 : framerate / blurOptionVal
+                const spanVal = parseInt(document.querySelector('.span').value)
+                let currentFrameCnt = 0
+                const framesArr = [currentFrameCnt]
+                while (currentFrameCnt < maxFrameCnt) {
+                    currentFrameCnt += framerate / spanVal
+                    const frameVal = Math.floor(currentFrameCnt - blurVal + rnd(blurVal * 2))
+                    framesArr.push(frameVal)
+                }
+                document.querySelector('.frames').value = framesArr.join(', ')
+            })
+
+            document.querySelector('.dl-btn').addEventListener('click', () => {
+                const track = new MidiWriter.Track()
+                track.addEvent(new MidiWriter.ProgramChangeEvent({ instrument: 1 }))
+                //
+                const type = document.querySelector('.type').value
+                const pitch = type === 'clap' ? 'E3' : type === 'chromaphone' ? 'C5' : 'D#2'
+                // Frames
+                const framerate = getFramerate()
+                const frames = document
+                    .querySelector('.frames')
+                    .value.split(',')
+                    .map((str) => parseInt(str.trim()))
+                frames.forEach((frame, i) => {
+                    track.addEvent(
+                        new MidiWriter.NoteEvent({
+                            pitch,
+                            duration: '16',
+                            velocity: 80,
+                            startTick: (frame / framerate) * 128,
+                        }),
+                    )
+                })
+                // Save
+                const write = new MidiWriter.Writer([track])
+                const uri = 'data:audio/midi;base64,' + write.base64()
+                window.open(uri)
+            })
+        </script>
+    </body>
+</html>

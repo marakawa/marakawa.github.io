@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Fukushima</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                padding-bottom: 50px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            .fukushima {
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+                width: 100vw;
+                height: 70vw;
+            }
+            .buttons {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                z-index: 10;
+            }
+            .buttons > button {
+                height: 50px;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fukushima" style="background-image: url(./assets/fukushima_flat.jpg)"></div>
+        <div class="buttons">
+            <button id="toggle-view-btn">Toggle View</button>
+            <button id="toggle-satellite-btn">Toggle Satellite</button>
+        </div>
+        <script>
+            class City {
+                constructor(name, xPer, yPer, wPer, color) {
+                    this.name = name
+                    this.xPer = xPer
+                    this.yPer = yPer
+                    this.wPer = wPer
+                    this.color = color
+                    this.inputElem = undefined
+                    this.linkElem = undefined
+                }
+                setElems(inputElem, linkElem) {
+                    this.inputElem = inputElem
+                    this.linkElem = linkElem
+                }
+            }
+            const cities = [
+                new City('喜多方市', 37, 24, 7, '#f90'),
+                new City('北塩原村', 48, 26, 7, '#f90'),
+                new City('西会津町', 24, 30, 7, '#f90'),
+                new City('猪苗代町', 54, 33, 8, '#f90'),
+                new City('会津坂下町', 33, 34, 9, '#f90'),
+                new City('磐梯町', 45, 35, 7, '#f90'),
+                new City('湯川村', 38, 38, 6, '#f90'),
+                new City('会津若松市', 45, 44, 9, '#f90'),
+                new City('三島町', 27, 45, 7, '#f90'),
+                new City('金山町', 18, 47, 7, '#f90'),
+                new City('柳津町', 29, 49, 7, '#f90'),
+                new City('会津美里町', 37, 50, 9, '#f90'),
+                new City('昭和村', 27, 58, 7, '#f90'),
+                //
+                new City('只見町', 11, 60, 7, '#f00'),
+                new City('下郷町', 39, 62, 7, '#f00'),
+                new City('南会津町', 25, 72, 7, '#f00'),
+                new City('檜枝岐村', 10, 81, 7, '#f00'),
+                //
+                new City('国見町', 74, 8, 7, '#0f0'),
+                new City('桑折町', 71, 12, 7, '#0f0'),
+                new City('伊達市', 77, 16, 7, '#0f0'),
+                new City('福島市', 66, 18, 7, '#0f0'),
+                new City('川俣町', 78, 30, 7, '#0f0'),
+                new City('二本松市', 71, 34, 8, '#0f0'),
+                new City('大玉村', 63, 37, 7, '#0f0'),
+                new City('本宮市', 67, 42, 7, '#0f0'),
+                //
+                new City('田村市', 81, 47, 7, '#090'),
+                new City('三春町', 70, 47, 7, '#090'),
+                new City('郡山市', 60, 50, 7, '#090'),
+                new City('須賀川市', 62, 58, 8, '#090'),
+                new City('小野町', 77, 59, 7, '#090'),
+                new City('天栄村', 48, 60, 7, '#090'),
+                //
+                new City('新地町', 94, 11, 7, '#0ff'),
+                new City('相馬市', 92, 18, 7, '#0ff'),
+                new City('飯舘村', 85, 27, 7, '#0ff'),
+                new City('南相馬市', 94, 31, 8, '#0ff'),
+                new City('葛尾村', 86, 41, 7, '#0ff'),
+                new City('浪江町', 94, 42, 7, '#0ff'),
+                new City('双葉町', 96, 46, 7, '#0ff'),
+                new City('大熊町', 96, 50, 7, '#0ff'),
+                new City('富岡町', 96, 54, 7, '#0ff'),
+                new City('川内村', 88, 56, 7, '#0ff'),
+                new City('楢葉町', 96, 59, 7, '#0ff'),
+                new City('広野町', 96, 65, 7, '#0ff'),
+                //
+                new City('いわき市', 88, 77, 8, '#00f'),
+            ]
+            window.addEventListener('load', () => {
+                const fukushimaElem = document.querySelector('.fukushima')
+                fukushimaElem.style.position = 'relative'
+                fukushimaElem.addEventListener('click', (e) => {
+                    console.log(`${((e.pageX / fukushimaElem.clientWidth) * 100).toFixed(0)}% ${((e.pageY / fukushimaElem.clientHeight) * 100).toFixed(0)}%`)
+                })
+                // City
+                cities.forEach((city) => {
+                    const linkElem = document.createElement('a')
+                    linkElem.setAttribute('href', `//google.com/search?q=${city.name}`)
+                    linkElem.setAttribute('target', `_blank`)
+                    const inputElem = document.createElement('input')
+                    inputElem.classList.add('city')
+                    linkElem.style.diaplay = inputElem.style.display = 'block'
+                    linkElem.style.pointerEvents = inputElem.style.pointerEvents = 'all'
+                    linkElem.style.position = inputElem.style.position = 'absolute'
+                    linkElem.style.left = inputElem.style.left = `${city.xPer}%`
+                    linkElem.style.top = inputElem.style.top = `${city.yPer}%`
+                    linkElem.style.width = inputElem.style.width = `${city.wPer}%`
+                    linkElem.style.height = inputElem.style.height = `4%`
+                    linkElem.style.margin = inputElem.style.margin = `0`
+                    linkElem.style.padding = inputElem.style.padding = `0`
+                    linkElem.style.transform = inputElem.style.transform = 'translate(-50%, -50%)'
+                    inputElem.style.border = inputElem.style.border = `1px solid ${city.color}`
+                    linkElem.style.zIndex = '1'
+                    inputElem.style.zIndex = '2'
+                    inputElem.style.fontSize = '10px'
+                    inputElem.style.padding = '0'
+                    inputElem.style.textAlign = 'center'
+                    fukushimaElem.appendChild(linkElem)
+                    fukushimaElem.appendChild(inputElem)
+                    city.setElems(inputElem, linkElem)
+                    const check = () => {
+                        const invalidCity = cities.find((city) => city.inputElem.value.trim().length && city.inputElem.value !== city.name)
+                        if (invalidCity) {
+                            cities.forEach((city) => {
+                                city.inputElem.style.border = `2px solid #f00`
+                                city.linkElem.style.border = `2px solid #f00`
+                            })
+                        } else {
+                            cities.forEach((city) => {
+                                city.inputElem.style.border = `1px solid ${city.color}`
+                                city.linkElem.style.border = `1px solid ${city.color}`
+                            })
+                        }
+                    }
+                    inputElem.addEventListener('keyup', () => check())
+                    inputElem.addEventListener('keypress', () => check())
+                })
+                document.querySelector('#toggle-view-btn').addEventListener('click', () => {
+                    cities.forEach((city) => {
+                        city.inputElem.style.backgroundColor = city.inputElem.style.backgroundColor === 'rgba(255, 255, 255, 0)' ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0)'
+                        city.inputElem.style.pointerEvents = city.inputElem.style.pointerEvents === 'all' ? 'none' : 'all'
+                    })
+                })
+                document.querySelector('#toggle-satellite-btn').addEventListener('click', () => {
+                    fukushimaElem.style.backgroundImage = fukushimaElem.style.backgroundImage === 'url("./assets/fukushima_satellite.jpg")' ? 'url("./assets/fukushima_flat.jpg")' : 'url("./assets/fukushima_satellite.jpg")'
+                })
+            })
+        </script>
+    </body>
+</html>
