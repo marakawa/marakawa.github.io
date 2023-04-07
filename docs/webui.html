@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>webui</title>
+        <style>
+            *,
+            *:after,
+            *:before {
+                box-sizing: border-box;
+            }
+            dl {
+                margin: 0;
+            }
+            input[type='text'],
+            input[type='number'],
+            select,
+            textarea {
+                width: 100%;
+                height: 45px;
+            }
+            textarea {
+                height: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>webui</h1>
+        <form id="cmd-form" action="./" method="POST">
+            <dl>
+                <dt>prompt</dt>
+                <dd>
+                    <textarea name="_prompt">
+                        ((((masterpiece)))), high quality, ultra high resolution,
+                        high detailed beautiful face and eyes,
+                        full face, viewfinder,
+                        short hair,
+                        round eyes, twinkle eyes, glowing eyes,
+                        short neck,
+                        so many flowers and jewels around
+                    </textarea>
+                </dd>
+                <dt>negative-prompt</dt>
+                <dd>
+                    <textarea name="negative-prompt">
+                        lowres, low quality, bad quality,
+                        multiple girls,
+                        bad anatomy,
+                        bad face,
+                        bad eyes, missing eyes,
+                        bad eyelashes, missing eyelashes,
+                        bad fingers, missing fingers,
+                        signature, artist name, text
+                    </textarea>
+                </dd>
+                <dt>_models-path</dt>
+                <dd>
+                    <input type="text" name="_models-path" value="/Users/macbook/Documents/StableDiffusion/models/" />
+                </dd>
+                <dt>_model-name</dt>
+                <dd>
+                    <select name="_model-name">
+                        <option value="/anything-v3.0-current_original">anything-v3.0-current_original</option>
+                        <option value="/anything-v3.0-current_original_768x512">anything-v3.0-current_original_768x512</option>
+                        <option value="/AOM3_original">AOM3_original</option>
+                        <option value="/AOM3_original_768x512">AOM3_original_768x512</option>
+                        <option value="/AOM3A1_original">AOM3A1_original</option>
+                        <option value="/AOM3A1_original_768x512">AOM3A1_original_768x512</option>
+                        <option value="/chilloutmix-ni_original">chilloutmix-ni_original</option>
+                        <option value="/chilloutmix-ni_original_768x512">chilloutmix-ni_original_768x512</option>
+                        <option value="/Counterfeit-V2.5_original" selected>Counterfeit-V2.5_original</option>
+                        <option value="/Counterfeit-V2.5_original_768x512">Counterfeit-V2.5_original_768x512</option>
+                        <option value="/v1-5_original">v1-5_original</option>
+                    </select>
+                </dd>
+                <dt>output-path</dt>
+                <dd>
+                    <input type="text" name="output-path" value="./outputs" />
+                </dd>
+                <dt>image-count</dt>
+                <dd>
+                    <input type="number" name="image-count" step="1" min="1" max="100" placeholder="1" />
+                </dd>
+                <dt>step-count</dt>
+                <dd>
+                    <input type="number" name="step-count" value="20" step="1" min="0" max="50" />
+                </dd>
+                <dt>guidance-scale</dt>
+                <dd>
+                    <input type="number" name="guidance-scale" step="0.5" min="0" max="20" placeholder="7.5" />
+                </dd>
+                <dt>scheduler</dt>
+                <dd>
+                    <select name="scheduler">
+                        <option value="dpmpp">dpmpp</option>
+                        <option value="pndm">pndm</option>
+                    </select>
+                </dd>
+                <dt>seed</dt>
+                <dd>
+                    <input type="text" name="seed" value="$RANDOM" />
+                </dd>
+                <dt>options</dt>
+                <dd>
+                    <input type="text" name="_options" value="--disable-safety" />
+                </dd>
+                <dt>cd</dt>
+                <dd>
+                    <input type="checkbox" name="_cd" checked />
+                </dd>
+                <dt>open</dt>
+                <dd>
+                    <input type="checkbox" name="_open" checked />
+                </dd>
+                <dt>image (optional)</dt>
+                <dd>
+                    <input type="text" name="image" placeholder="(optional)" />
+                </dd>
+                <dt>strength (optional)</dt>
+                <dd>
+                    <input type="number" name="strength" step="0.1" min="0" max="1" placeholder="(for image) 0.7" />
+                </dd>
+            </dl>
+            <input type="submit" value="Copy" />
+        </form>
+        <script>
+            window.addEventListener('load', () => {
+                document.querySelectorAll('textarea').forEach((el) => (el.value = el.value.trim().replace(/\n +/g, '\n')))
+                document.querySelector('#cmd-form').addEventListener('submit', async (e) => {
+                    e.preventDefault()
+                    const formData = new FormData(e.target)
+                    const d = {
+                        _prompt: formData.get('_prompt'),
+                        'negative-prompt': formData.get('negative-prompt'),
+                        image: formData.get('image'),
+                        '_models-path': formData.get('_models-path'),
+                        '_model-name': formData.get('_model-name'),
+                        'output-path': formData.get('output-path'),
+                        strength: formData.get('strength'),
+                        'image-count': formData.get('image-count'),
+                        'step-count': formData.get('step-count'),
+                        'guidance-scale': formData.get('guidance-scale'),
+                        scheduler: formData.get('scheduler'),
+                        seed: formData.get('seed'),
+                        _options: formData.get('_options'),
+                        _cd: formData.get('_cd'),
+                        _open: formData.get('_open'),
+                    }
+                    const cmd = `${d._cd ? `cd /Users/macbook/Documents/StableDiffusion/ml-stable-diffusion &&` : ''} ${d._open ? `open ./ &&` : ''} swift run StableDiffusionSample "${d._prompt}" --resource-path "${d['_models-path']}${
+                        d['_model-name']
+                    }" ${Object.keys(d)
+                        .map((k) => (!k.startsWith('_') && d[k] && `${d[k]}`.trim().length ? `--${k} ${!isNaN(d[k]) ? d[k] : `"${d[k].replace(/"/g, '')}"`}` : ''))
+                        .join(' ')} ${d._options}`
+                        .replace(/\/+/g, '/')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                    // Copy
+                    const copyTextElem = document.createElement('input')
+                    document.body.appendChild(copyTextElem)
+                    copyTextElem.setAttribute('value', cmd)
+                    copyTextElem.select()
+                    copyTextElem.setSelectionRange(0, 99999)
+                    await navigator.clipboard.writeText(copyTextElem.value)
+                    alert('Copied!\n\n' + copyTextElem.value)
+                    copyTextElem.remove()
+                })
+            })
+        </script>
+    </body>
+</html>
