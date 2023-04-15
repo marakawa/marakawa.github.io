@@ -8,7 +8,6 @@
         <style>
             canvas {
                 border: 1px solid silver;
-                transform: scale(0.3, 0.3);
                 transform-origin: top left;
                 display: block;
             }
@@ -24,9 +23,9 @@
         <form id="control-form">
             <div>
                 <span>width</span>
-                <input type="number" name="width" value="1920" />
+                <input type="number" name="width" value="1024" />
                 <span>height</span>
-                <input type="number" name="height" value="1080" />
+                <input type="number" name="height" value="1024" />
             </div>
             <div>
                 <span>bg line width</span>
@@ -54,19 +53,17 @@
         </form>
         <div id="canvases"></div>
         <script>
-            const run = (canvasWidth, canvasHeight, callback, posX = 0, posY = 50) => {
+            const run = (canvasWidth, canvasHeight, callback) => {
                 const canvas = document.createElement('canvas')
                 canvas.width = canvasWidth
                 canvas.height = canvasHeight
-                document.querySelector('#canvases').appendChild(canvas)
-                canvas.style.position = 'absolute'
-                canvas.style.left = `${posX}px`
-                canvas.style.top = `${posY}px`
                 canvas.addEventListener('click', () => downloadCanvas(canvas))
                 const ctx = canvas.getContext('2d')
                 ctx.save()
                 callback(canvas, ctx)
                 ctx.restore()
+                canvas.style.maxWidth = '100%'
+                document.querySelector('#canvases').appendChild(canvas)
             }
             const runs = (canvasWidth, canvasHeight, bgLineWidth, lineWidth, backColor, foreColor, invert = false, sub = false, img = null) => {
                 if (bgLineWidth === 0 || lineWidth === 0) {
@@ -74,185 +71,156 @@
                 }
                 document.querySelector('#canvases').innerHTML = ''
                 // Flat
-                run(
-                    canvasHeight,
-                    canvasHeight,
-                    (canvas, ctx) => {
+                run(canvasHeight, canvasHeight, (canvas, ctx) => {
+                    ctx.fillStyle = invert ? foreColor : backColor
+                    if (img) {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+                    } else {
+                        ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    }
+                })
+                // Grad
+                run(canvasHeight, canvasHeight, (canvas, ctx) => {
+                    ctx.fillStyle = invert ? foreColor : backColor
+                    if (img) {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+                    } else {
+                        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height)
+                        grad.addColorStop(0, invert ? foreColor : backColor)
+                        grad.addColorStop(1, '#ffffff')
+                        ctx.fillStyle = grad
+                        ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    }
+                })
+                // +
+                for (let i = 0; i < 3; i++) {
+                    run(canvasWidth, canvasHeight, (canvas, ctx) => {
+                        ctx.fillStyle = invert ? foreColor : backColor
+                        ctx.strokeStyle = invert ? backColor : foreColor
+                        if (img) {
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+                        } else {
+                            ctx.fillRect(0, 0, canvas.width, canvas.height)
+                        }
+                        for (let v = lineWidth / 2; v <= canvas.height; v += lineWidth + bgLineWidth) {
+                            ctx.lineWidth = lineWidth
+                            ctx.beginPath()
+                            if (i === 0 || i === 1) {
+                                ctx.moveTo(v, 0)
+                                ctx.lineTo(v, canvas.height)
+                            }
+                            if (i === 0 || i === 2) {
+                                ctx.moveTo(0, v)
+                                ctx.lineTo(canvas.width, v)
+                            }
+                            ctx.stroke()
+                            ctx.closePath()
+                        }
+                    })
+                }
+                // x
+                for (let i = 0; i < 3; i++) {
+                    run(canvasWidth, canvasHeight, (canvas, ctx) => {
+                        ctx.fillStyle = invert ? foreColor : backColor
+                        ctx.strokeStyle = invert ? backColor : foreColor
+                        if (img) {
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+                        } else {
+                            ctx.fillRect(0, 0, canvas.width, canvas.height)
+                        }
+                        for (let y = lineWidth / 2 - canvas.height; y <= canvas.height * 3; y += lineWidth + bgLineWidth * 1.5) {
+                            ctx.lineWidth = lineWidth
+                            ctx.beginPath()
+                            if (i === 0 || i === 1) {
+                                ctx.moveTo(-lineWidth, y)
+                                ctx.lineTo(canvas.width + lineWidth, y - canvas.width)
+                            }
+                            if (i === 0 || i === 2) {
+                                ctx.moveTo(-lineWidth, y)
+                                ctx.lineTo(canvas.width + lineWidth, y + canvas.width)
+                            }
+                            ctx.stroke()
+                            ctx.closePath()
+                        }
+                    })
+                }
+                // .
+                for (let i = 0; i < 2; i++) {
+                    run(canvasWidth, canvasHeight, (canvas, ctx) => {
                         ctx.fillStyle = invert ? foreColor : backColor
                         if (img) {
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
                         } else {
                             ctx.fillRect(0, 0, canvas.width, canvas.height)
                         }
-                    },
-                    0,
-                    0,
-                )
-                // +
-                for (let i = 0; i < 3; i++) {
-                    run(
-                        canvasWidth,
-                        canvasHeight,
-                        (canvas, ctx) => {
-                            ctx.fillStyle = invert ? foreColor : backColor
-                            ctx.strokeStyle = invert ? backColor : foreColor
-                            if (img) {
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-                            } else {
-                                ctx.fillRect(0, 0, canvas.width, canvas.height)
-                            }
-                            for (let v = lineWidth / 2; v <= canvas.height; v += lineWidth + bgLineWidth) {
-                                ctx.lineWidth = lineWidth
+                        ctx.fillStyle = invert ? backColor : foreColor
+                        let lineNum = 0
+                        for (let y = 0; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
+                            let x = i === 1 && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0
+                            for (; x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
+                                ctx.lineWidth = 1
                                 ctx.beginPath()
-                                if (i === 0 || i === 1) {
-                                    ctx.moveTo(v, 0)
-                                    ctx.lineTo(v, canvas.height)
-                                }
-                                if (i === 0 || i === 2) {
-                                    ctx.moveTo(0, v)
-                                    ctx.lineTo(canvas.width, v)
-                                }
-                                ctx.stroke()
+                                ctx.moveTo(x, y)
+                                ctx.arc(x, y, lineWidth / 2, 0, Math.PI * 2)
+                                ctx.fill()
                                 ctx.closePath()
                             }
-                        },
-                        50 * (i + 1),
-                        0,
-                    )
-                }
-                // x
-                for (let i = 0; i < 3; i++) {
-                    run(
-                        canvasWidth,
-                        canvasHeight,
-                        (canvas, ctx) => {
-                            ctx.fillStyle = invert ? foreColor : backColor
-                            ctx.strokeStyle = invert ? backColor : foreColor
-                            if (img) {
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-                            } else {
-                                ctx.fillRect(0, 0, canvas.width, canvas.height)
-                            }
-                            for (let y = lineWidth / 2 - canvas.height; y <= canvas.height * 3; y += lineWidth + bgLineWidth * 1.5) {
-                                ctx.lineWidth = lineWidth
-                                ctx.beginPath()
-                                if (i === 0 || i === 1) {
-                                    ctx.moveTo(-lineWidth, y)
-                                    ctx.lineTo(canvas.width + lineWidth, y - canvas.width)
-                                }
-                                if (i === 0 || i === 2) {
-                                    ctx.moveTo(-lineWidth, y)
-                                    ctx.lineTo(canvas.width + lineWidth, y + canvas.width)
-                                }
-                                ctx.stroke()
-                                ctx.closePath()
-                            }
-                        },
-                        50 * (i + 4),
-                        0,
-                    )
-                }
-                // .
-                for (let i = 0; i < 2; i++) {
-                    run(
-                        canvasWidth,
-                        canvasHeight,
-                        (canvas, ctx) => {
-                            ctx.fillStyle = invert ? foreColor : backColor
-                            if (img) {
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-                            } else {
-                                ctx.fillRect(0, 0, canvas.width, canvas.height)
-                            }
-                            ctx.fillStyle = invert ? backColor : foreColor
-                            let lineNum = 0
-                            for (let y = 0; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
-                                let x = i === 1 && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0
-                                for (; x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
-                                    ctx.lineWidth = 1
-                                    ctx.beginPath()
-                                    ctx.moveTo(x, y)
-                                    ctx.arc(x, y, lineWidth / 2, 0, Math.PI * 2)
-                                    ctx.fill()
-                                    ctx.closePath()
-                                }
-                                lineNum++
-                            }
-                        },
-                        50 * (i + 7),
-                        0,
-                    )
+                            lineNum++
+                        }
+                    })
                 }
                 // Human Generator T-shirt
-                run(
-                    canvasWidth,
-                    canvasWidth,
-                    (canvas, ctx) => {
-                        ctx.fillStyle = invert ? backColor : foreColor
-                        ctx.fillRect(0, 0, canvas.width, canvas.height)
-                        ctx.fillStyle = invert ? foreColor : backColor
-                        if (img) {
-                            ctx.translate((canvas.width / 10) * 5, (canvas.height / 10) * 6)
-                            ctx.rotate(Math.PI / 2)
-                            const w = (canvas.width / 10) * 3
-                            ctx.drawImage(img, 0, 0, w, w * (img.height / img.width))
-                        } else {
-                            ctx.fillRect(canvas.width / 10, (canvas.height / 10) * 6, (canvas.width / 10) * 4, (canvas.height / 10) * 3)
-                        }
-                    },
-                    450,
-                    0,
-                )
+                run(canvasWidth, canvasWidth, (canvas, ctx) => {
+                    ctx.fillStyle = invert ? backColor : foreColor
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx.fillStyle = invert ? foreColor : backColor
+                    if (img) {
+                        ctx.translate((canvas.width / 10) * 5, (canvas.height / 10) * 6)
+                        ctx.rotate(Math.PI / 2)
+                        const w = (canvas.width / 10) * 3
+                        ctx.drawImage(img, 0, 0, w, w * (img.height / img.width))
+                    } else {
+                        ctx.fillRect(canvas.width / 10, (canvas.height / 10) * 6, (canvas.width / 10) * 4, (canvas.height / 10) * 3)
+                    }
+                })
                 // Unity VRM T-shirt
-                run(
-                    canvasWidth,
-                    canvasWidth,
-                    (canvas, ctx) => {
-                        ctx.fillStyle = invert ? backColor : foreColor
-                        ctx.fillRect(0, 0, canvas.width, canvas.height)
-                        ctx.fillStyle = invert ? foreColor : backColor
-                        if (img) {
-                            ctx.translate((canvas.width / 8) * 3, (canvas.height / 8) * 1.5)
-                            const w = (canvas.width / 8) * 2
-                            ctx.drawImage(img, 0, 0, w, (w * (img.height / img.width)) / 2)
-                        } else {
-                            ctx.fillRect((canvas.width / 8) * 3, (canvas.height / 8) * 1.5, (canvas.width / 8) * 2, (canvas.height / 8) * 2)
-                        }
-                    },
-                    550,
-                    0,
-                )
+                run(canvasWidth, canvasWidth, (canvas, ctx) => {
+                    ctx.fillStyle = invert ? backColor : foreColor
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx.fillStyle = invert ? foreColor : backColor
+                    if (img) {
+                        ctx.translate((canvas.width / 8) * 3, (canvas.height / 8) * 1.5)
+                        const w = (canvas.width / 8) * 2
+                        ctx.drawImage(img, 0, 0, w, (w * (img.height / img.width)) / 2)
+                    } else {
+                        ctx.fillRect((canvas.width / 8) * 3, (canvas.height / 8) * 1.5, (canvas.width / 8) * 2, (canvas.height / 8) * 2)
+                    }
+                })
                 // Unity Space Robot Kyle
-                run(
-                    canvasWidth,
-                    canvasWidth,
-                    (canvas, ctx) => {
-                        ctx.fillStyle = invert ? backColor : foreColor
-                        ctx.fillRect(0, 0, canvas.width, canvas.height)
-                        ctx.fillStyle = invert ? foreColor : backColor
-                        if (img) {
+                run(canvasWidth, canvasWidth, (canvas, ctx) => {
+                    ctx.fillStyle = invert ? backColor : foreColor
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx.fillStyle = invert ? foreColor : backColor
+                    if (img) {
+                        ctx.save()
+                        ctx.translate((canvas.width / 1000) * 770, (canvas.height / 1000) * 470)
+                        w = (canvas.width / 1000) * 170
+                        ctx.drawImage(img, 0, 0, w, w * (img.height / img.width))
+                        ctx.restore()
+                        if (sub) {
                             ctx.save()
-                            ctx.translate((canvas.width / 1000) * 770, (canvas.height / 1000) * 470)
-                            w = (canvas.width / 1000) * 170
+                            ctx.translate((canvas.width / 1000) * 180, (canvas.height / 1000) * 255)
+                            let w = (canvas.width / 1000) * 95
                             ctx.drawImage(img, 0, 0, w, w * (img.height / img.width))
                             ctx.restore()
-                            if (sub) {
-                                ctx.save()
-                                ctx.translate((canvas.width / 1000) * 180, (canvas.height / 1000) * 255)
-                                let w = (canvas.width / 1000) * 95
-                                ctx.drawImage(img, 0, 0, w, w * (img.height / img.width))
-                                ctx.restore()
-                            }
-                        } else {
-                            ctx.fillRect((canvas.width / 1000) * 770, (canvas.height / 1000) * 470, (canvas.width / 1000) * 170, (canvas.height / 1000) * 220)
-                            if (sub) {
-                                ctx.fillRect((canvas.width / 1000) * 180, (canvas.height / 1000) * 255, (canvas.width / 1000) * 95, (canvas.height / 1000) * 120)
-                            }
                         }
-                    },
-                    0,
-                    50,
-                )
+                    } else {
+                        ctx.fillRect((canvas.width / 1000) * 770, (canvas.height / 1000) * 470, (canvas.width / 1000) * 170, (canvas.height / 1000) * 220)
+                        if (sub) {
+                            ctx.fillRect((canvas.width / 1000) * 180, (canvas.height / 1000) * 255, (canvas.width / 1000) * 95, (canvas.height / 1000) * 120)
+                        }
+                    }
+                })
             }
             const downloadCanvas = function (canvas, fileName = 'texture.png') {
                 const link = document.createElement('a')
