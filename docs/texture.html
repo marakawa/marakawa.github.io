@@ -53,6 +53,7 @@
         </form>
         <div id="canvases"></div>
         <script>
+            const rnd = (v) => Math.floor(Math.random() * v)
             const run = (canvasWidth, canvasHeight, callback) => {
                 const canvas = document.createElement('canvas')
                 canvas.width = canvasWidth
@@ -93,7 +94,7 @@
                     }
                 })
                 // +
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 6; i++) {
                     run(canvasWidth, canvasHeight, (canvas, ctx) => {
                         ctx.fillStyle = invert ? foreColor : backColor
                         ctx.strokeStyle = invert ? backColor : foreColor
@@ -102,16 +103,18 @@
                         } else {
                             ctx.fillRect(0, 0, canvas.width, canvas.height)
                         }
+                        const type = i < 2 ? 'cross' : i < 4 ? 'vertical' : 'horizontal'
+                        const isGlitch = i % 2 === 1
                         for (let v = lineWidth / 2; v <= canvas.height; v += lineWidth + bgLineWidth) {
                             ctx.lineWidth = lineWidth
                             ctx.beginPath()
-                            if (i === 0 || i === 1) {
-                                ctx.moveTo(v, 0)
-                                ctx.lineTo(v, canvas.height)
+                            if (type === 'cross' || type === 'vertical') {
+                                ctx.moveTo(v + (isGlitch ? lineWidth * Math.random() : 0), 0)
+                                ctx.lineTo(v + (isGlitch ? lineWidth * Math.random() : 0), canvas.height)
                             }
-                            if (i === 0 || i === 2) {
-                                ctx.moveTo(0, v)
-                                ctx.lineTo(canvas.width, v)
+                            if (type === 'cross' || type === 'horizontal') {
+                                ctx.moveTo(0, v + (isGlitch ? lineWidth * Math.random() : 0))
+                                ctx.lineTo(canvas.width, v + (isGlitch ? lineWidth * Math.random() : 0))
                             }
                             ctx.stroke()
                             ctx.closePath()
@@ -119,7 +122,7 @@
                     })
                 }
                 // x
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 6; i++) {
                     run(canvasWidth, canvasHeight, (canvas, ctx) => {
                         ctx.fillStyle = invert ? foreColor : backColor
                         ctx.strokeStyle = invert ? backColor : foreColor
@@ -128,15 +131,17 @@
                         } else {
                             ctx.fillRect(0, 0, canvas.width, canvas.height)
                         }
+                        const type = i < 2 ? 'cross' : i < 4 ? 'slash' : 'backslash'
+                        const isGlitch = i % 2 === 1
                         for (let y = lineWidth / 2 - canvas.height; y <= canvas.height * 3; y += lineWidth + bgLineWidth * 1.5) {
-                            ctx.lineWidth = lineWidth
+                            ctx.lineWidth = lineWidth * (isGlitch ? 0.5 + 0.5 * Math.random() : 1)
                             ctx.beginPath()
-                            if (i === 0 || i === 1) {
-                                ctx.moveTo(-lineWidth, y)
+                            if (type === 'cross' || type === 'slash') {
+                                ctx.moveTo(-lineWidth, y + (isGlitch ? lineWidth * Math.random() : 0))
                                 ctx.lineTo(canvas.width + lineWidth, y - canvas.width)
                             }
-                            if (i === 0 || i === 2) {
-                                ctx.moveTo(-lineWidth, y)
+                            if (type === 'cross' || type === 'backslash') {
+                                ctx.moveTo(-lineWidth, y + (isGlitch ? lineWidth * Math.random() : 0))
                                 ctx.lineTo(canvas.width + lineWidth, y + canvas.width)
                             }
                             ctx.stroke()
@@ -145,7 +150,7 @@
                     })
                 }
                 // .
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 4; i++) {
                     run(canvasWidth, canvasHeight, (canvas, ctx) => {
                         ctx.fillStyle = invert ? foreColor : backColor
                         if (img) {
@@ -154,14 +159,15 @@
                             ctx.fillRect(0, 0, canvas.width, canvas.height)
                         }
                         ctx.fillStyle = invert ? backColor : foreColor
+                        const isSorted = i < 2
+                        const isGlitch = i % 2 === 1
                         let lineNum = 0
                         for (let y = 0; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
-                            let x = i === 1 && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0
-                            for (; x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
+                            for (let x = !isSorted && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0; x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
                                 ctx.lineWidth = 1
                                 ctx.beginPath()
                                 ctx.moveTo(x, y)
-                                ctx.arc(x, y, lineWidth / 2, 0, Math.PI * 2)
+                                ctx.arc(x + (isGlitch ? (lineWidth / 4) * Math.random() : 0), y + (isGlitch ? (lineWidth / 4) * Math.random() : 0), (lineWidth / 2) * (isGlitch ? 0.8 + 0.2 * Math.random() : 1), 0, Math.PI * 2)
                                 ctx.fill()
                                 ctx.closePath()
                             }
