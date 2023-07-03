@@ -2,7 +2,6 @@
     "name": "marakawa.github.io",
     "version": "1.0.0",
     "description": "- https://marakawa.github.io",
-    "main": "index.js",
     "scripts": {
         "start": "npm run clean && parcel ./src/index.html",
         "build": "npm run clean && parcel build ./src/index.html",
