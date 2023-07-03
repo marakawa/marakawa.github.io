@@ -3,16 +3,20 @@
     "version": "1.0.0",
     "description": "- https://marakawa.github.io",
     "main": "index.js",
-    "directories": {
-        "doc": "docs"
-    },
     "scripts": {
-        "start": "parcel ./docs/index.html"
+        "start": "npm run clean && parcel ./src/index.html",
+        "build": "npm run clean && parcel build ./src/index.html",
+        "clean": "rm -rf .parcel-cache dist"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@types/three": "^0.152.1",
         "parcel": "^2.8.3"
+    },
+    "dependencies": {
+        "file-saver": "^2.0.5",
+        "three": "^0.153.0"
     }
 }
