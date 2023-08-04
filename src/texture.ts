@@ -1,10 +1,10 @@
 import { downloadCanvas, loadImage } from './common/utils'
 
-const run = (title: string, canvasWidth: number, canvasHeight: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
+const run = (title: string, canvasSize: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
     const itemElem = document.createElement('div')
     const canvas = document.createElement('canvas')
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
+    canvas.width = canvasSize
+    canvas.height = canvasSize
     canvas.addEventListener('click', () => downloadCanvas(canvas))
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
     ctx.save()
@@ -19,14 +19,14 @@ const run = (title: string, canvasWidth: number, canvasHeight: number, callback:
     container.appendChild(itemElem)
 }
 
-const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, lineWidth: number, backColor: string, foreColor: string, invert = false, sub = false, img?: HTMLImageElement | HTMLCanvasElement) => {
+const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backColor: string, foreColor: string, invert = false, sub = false, img?: HTMLImageElement | HTMLCanvasElement) => {
     if (bgLineWidth === 0 || lineWidth === 0) {
         return
     }
     const container = document.querySelector('#canvases') as HTMLElement
     container.innerHTML = ''
     // Flat
-    run('flat', canvasHeight, canvasHeight, (canvas, ctx) => {
+    run('flat', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? foreColor : backColor
         if (img) {
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
@@ -35,7 +35,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
         }
     })
     // Grad
-    run('grad', canvasHeight, canvasHeight, (canvas, ctx) => {
+    run('grad', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? foreColor : backColor
         if (img) {
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
@@ -49,7 +49,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
     })
     // +
     for (let i = 0; i < 6; i++) {
-        run('plus', canvasWidth, canvasHeight, (canvas, ctx) => {
+        run('plus', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             ctx.strokeStyle = invert ? backColor : foreColor
             if (img) {
@@ -77,7 +77,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
     }
     // x
     for (let i = 0; i < 6; i++) {
-        run('cross', canvasWidth, canvasHeight, (canvas, ctx) => {
+        run('cross', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             ctx.strokeStyle = invert ? backColor : foreColor
             if (img) {
@@ -87,16 +87,23 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
             }
             const type = i < 2 ? 'cross' : i < 4 ? 'slash' : 'backslash'
             const isGlitch = i % 2 === 1
-            for (let y = lineWidth / 2 - canvas.height; y <= canvas.height * 3; y += lineWidth + bgLineWidth * 1.5) {
+            for (let y = 0; y <= canvas.height; y += lineWidth + bgLineWidth * 1.5) {
                 ctx.lineWidth = lineWidth * (isGlitch ? 0.5 + 0.5 * Math.random() : 1)
+                ctx.lineCap = 'square'
                 ctx.beginPath()
                 if (type === 'cross' || type === 'slash') {
-                    ctx.moveTo(-lineWidth, y)
-                    ctx.lineTo(canvas.width + lineWidth, y - canvas.width)
+                    ctx.moveTo(0, y)
+                    ctx.lineTo(canvas.width, y - canvas.width)
+                    //
+                    ctx.moveTo(0, y + canvas.height)
+                    ctx.lineTo(canvas.width, y - canvas.width + canvas.height)
                 }
                 if (type === 'cross' || type === 'backslash') {
-                    ctx.moveTo(-lineWidth, y)
-                    ctx.lineTo(canvas.width + lineWidth, y + canvas.width)
+                    ctx.moveTo(0, y - canvas.height)
+                    ctx.lineTo(canvas.width, y + canvas.height - canvas.height)
+                    //
+                    ctx.moveTo(0, y)
+                    ctx.lineTo(canvas.width, y + canvas.height)
                 }
                 ctx.stroke()
                 ctx.closePath()
@@ -105,7 +112,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
     }
     // .
     for (let i = 0; i < 4; i++) {
-        run('dots', canvasWidth, canvasHeight, (canvas, ctx) => {
+        run('dots', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             if (img) {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
@@ -116,8 +123,8 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
             const isSorted = i < 2
             const isGlitch = i % 2 === 1
             let lineNum = 0
-            for (let y = 0; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
-                for (let x = !isSorted && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0; x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
+            for (let y = lineWidth / 2; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
+                for (let x = lineWidth / 2 + (!isSorted && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0); x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
                     ctx.lineWidth = 1
                     ctx.beginPath()
                     ctx.moveTo(x, y)
@@ -130,7 +137,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
         })
     }
     // Human Generator T-shirt
-    run('human generator t-shirt', canvasWidth, canvasWidth, (canvas, ctx) => {
+    run('human generator t-shirt', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? backColor : foreColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = invert ? foreColor : backColor
@@ -144,7 +151,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
         }
     })
     // Unity VRM T-shirt
-    run('unity vrm', canvasWidth, canvasWidth, (canvas, ctx) => {
+    run('unity vrm', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? backColor : foreColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = invert ? foreColor : backColor
@@ -157,7 +164,7 @@ const runs = (canvasWidth: number, canvasHeight: number, bgLineWidth: number, li
         }
     })
     // Unity Space Robot Kyle
-    run('unity space robot kyle', canvasWidth, canvasWidth, (canvas, ctx) => {
+    run('unity space robot kyle', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? backColor : foreColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = invert ? foreColor : backColor
@@ -188,8 +195,7 @@ window.addEventListener('load', () => {
     const updateByForm = (img?: HTMLImageElement | HTMLCanvasElement) => {
         const formData = new FormData(form)
         runs(
-            parseInt(formData.get('width') as string),
-            parseInt(formData.get('height') as string),
+            parseInt(formData.get('size') as string),
             parseInt(formData.get('back') as string),
             parseInt(formData.get('fore') as string),
             formData.get('backcolor') as string,
