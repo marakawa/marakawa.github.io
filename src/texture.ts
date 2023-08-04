@@ -1,4 +1,5 @@
 import { downloadCanvas, loadImage } from './common/utils'
+import { Noise } from 'noisejs'
 
 const run = (title: string, canvasSize: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
     const itemElem = document.createElement('div')
@@ -136,6 +137,22 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
             }
         })
     }
+    // simplex
+    run('simplex', canvasSize, (canvas, ctx) => {
+        const noise = new Noise(Math.random())
+        ctx.fillStyle = invert ? foreColor : backColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = invert ? backColor : foreColor
+        ctx.globalAlpha = 0.1
+        for (let y = 0; y < canvas.height; y += lineWidth) {
+            for (let x = 0; x < canvas.height; x += lineWidth) {
+                const n = noise.simplex2(x / (bgLineWidth * 10) + 1, y / (bgLineWidth * 10) + 1)
+                if (n < 0) {
+                    ctx.fillRect(x, y, lineWidth, lineWidth)
+                }
+            }
+        }
+    })
     // Human Generator T-shirt
     run('human generator t-shirt', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = invert ? backColor : foreColor
