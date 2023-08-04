@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
 import { saveAs } from 'file-saver'
+import { loadImage } from './common/utils'
 
 const wait = (d: number) => new Promise((resolve) => setTimeout(resolve, d))
 
@@ -35,71 +36,49 @@ window.addEventListener('load', () => {
     //
     let alphaPositions: AlphaPositions = {}
     const depthInput = document.querySelector('#depth-input') as HTMLInputElement
-    depthInput.addEventListener('change', (e) => {
-        const files = depthInput.files
-        if (!files) {
+    depthInput.addEventListener('change', async (e) => {
+        const img = await loadImage(depthInput)
+        if (!img) {
             return
         }
-        const file = files[0]
-        const img = new Image()
-        const reader = new FileReader()
-        reader.onload = () => {
-            if (reader.result) {
-                img.onload = () => {
-                    canvas.width = img.width
-                    canvas.height = img.height
-                    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-                    //
-                    alphaPositions = {}
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-                    for (let y = 0; y < canvas.height; y++) {
-                        for (let x = 0; x < canvas.width; x++) {
-                            const i = y * canvas.width * 4 + x * 4
-                            const r = imageData.data[i + 0]
-                            const g = imageData.data[i + 1]
-                            const b = imageData.data[i + 2]
-                            if (r < alphaRange && g < alphaRange && b < alphaRange) {
-                                alphaPositions[`${x}_${y}`] = true
-                            }
-                        }
-                    }
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        //
+        alphaPositions = {}
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        for (let y = 0; y < canvas.height; y++) {
+            for (let x = 0; x < canvas.width; x++) {
+                const i = y * canvas.width * 4 + x * 4
+                const r = imageData.data[i + 0]
+                const g = imageData.data[i + 1]
+                const b = imageData.data[i + 2]
+                if (r < alphaRange && g < alphaRange && b < alphaRange) {
+                    alphaPositions[`${x}_${y}`] = true
                 }
-                img.src = reader.result as string
             }
         }
-        reader.readAsDataURL(file)
     })
 
     //
     const fileInput = document.querySelector('#file-input') as HTMLInputElement
-    fileInput.addEventListener('change', (e) => {
-        const files = fileInput.files
-        if (!files) {
+    fileInput.addEventListener('change', async (e) => {
+        const img = await loadImage(fileInput)
+        if (!img) {
             return
         }
-        const file = files[0]
-        const img = new Image()
-        const reader = new FileReader()
-        reader.onload = () => {
-            if (reader.result) {
-                img.onload = () => {
-                    canvas.width = img.width
-                    canvas.height = img.height
-                    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-                    //
-                    scene.remove(renderGroup)
-                    renderGroup = canvas2Mesh(canvas, alphaPositions) || new THREE.Group()
-                    renderGroup.scale.set(0.005, 0.005, 0.005)
-                    scene.add(renderGroup)
-                }
-                img.src = reader.result as string
-            }
-        }
-        reader.readAsDataURL(file)
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        //
+        scene.remove(renderGroup)
+        renderGroup = canvas2Mesh(canvas, alphaPositions) || new THREE.Group()
+        renderGroup.scale.set(0.005, 0.005, 0.005)
+        scene.add(renderGroup)
     })
 
     // Export

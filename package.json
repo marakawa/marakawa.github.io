@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "- https://marakawa.github.io",
     "scripts": {
-        "start": "npm run clean && parcel ./src/index.html",
+        "start": "npm run clean && open -a 'Google Chrome' http://localhost:1234 && parcel ./src/index.html",
         "build": "npm run clean && parcel build ./src/index.html",
         "clean": "rm -rf .parcel-cache dist",
         "test": "echo 'OK'"
@@ -13,10 +13,14 @@
     "license": "ISC",
     "devDependencies": {
         "@types/three": "^0.152.1",
-        "parcel": "^2.8.3"
+        "buffer": "^5.7.1",
+        "parcel": "^2.8.3",
+        "process": "^0.11.10"
     },
     "dependencies": {
+        "blocks-mcpacker": "github:marakawa/blocks-mcpacker",
         "file-saver": "^2.0.5",
+        "jszip": "^3.10.1",
         "three": "^0.153.0"
     }
 }
