@@ -5,8 +5,7 @@
     "scripts": {
         "start": "npm run clean && open -a 'Google Chrome' http://localhost:1234 && parcel ./src/index.html",
         "build": "npm run clean && parcel build ./src/index.html",
-        "clean": "rm -rf .parcel-cache dist",
-        "test": "echo 'OK'"
+        "clean": "rm -rf .parcel-cache dist"
     },
     "keywords": [],
     "author": "",
