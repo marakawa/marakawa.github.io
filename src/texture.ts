@@ -143,7 +143,6 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
         ctx.fillStyle = invert ? foreColor : backColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = invert ? backColor : foreColor
-        ctx.globalAlpha = 0.1
         for (let y = 0; y < canvas.height; y += lineWidth) {
             for (let x = 0; x < canvas.height; x += lineWidth) {
                 const n = noise.simplex2(x / (bgLineWidth * 10) + 1, y / (bgLineWidth * 10) + 1)
