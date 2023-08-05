@@ -1,4 +1,4 @@
-import { downloadCanvas, loadImage } from './common/utils'
+import { downloadCanvas, loadImage, rnd } from './common/utils'
 import { Noise } from 'noisejs'
 
 const run = (title: string, canvasSize: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
@@ -49,7 +49,7 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
         }
     })
     // +
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
         run('plus', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             ctx.strokeStyle = invert ? backColor : foreColor
@@ -58,10 +58,9 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
             } else {
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
             }
-            const type = i < 2 ? 'cross' : i < 4 ? 'vertical' : 'horizontal'
-            const isGlitch = i % 2 === 1
-            for (let v = lineWidth / 2; v <= canvas.height; v += lineWidth + bgLineWidth) {
-                ctx.lineWidth = lineWidth * (isGlitch ? 0.5 + 0.5 * Math.random() : 1)
+            const type = i === 0 ? 'cross' : i === 1 ? 'vertical' : 'horizontal'
+            for (let v = lineWidth / 2; v < canvas.height; v += lineWidth + bgLineWidth) {
+                ctx.lineWidth = lineWidth * 0.5 + lineWidth * 0.5 * Math.random()
                 ctx.beginPath()
                 if (type === 'cross' || type === 'vertical') {
                     ctx.moveTo(v, 0)
@@ -77,7 +76,7 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
         })
     }
     // x
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
         run('cross', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             ctx.strokeStyle = invert ? backColor : foreColor
@@ -86,10 +85,9 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
             } else {
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
             }
-            const type = i < 2 ? 'cross' : i < 4 ? 'slash' : 'backslash'
-            const isGlitch = i % 2 === 1
-            for (let y = 0; y <= canvas.height; y += lineWidth + bgLineWidth * 1.5) {
-                ctx.lineWidth = lineWidth * (isGlitch ? 0.5 + 0.5 * Math.random() : 1)
+            const type = i === 0 ? 'cross' : i === 1 ? 'slash' : 'backslash'
+            for (let y = 0; y < canvas.height; y += lineWidth + bgLineWidth * 1.5) {
+                ctx.lineWidth = lineWidth * 0.5 + lineWidth * 0.5 * Math.random()
                 ctx.lineCap = 'square'
                 ctx.beginPath()
                 if (type === 'cross' || type === 'slash') {
@@ -112,7 +110,7 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
         })
     }
     // .
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 2; i++) {
         run('dots', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = invert ? foreColor : backColor
             if (img) {
@@ -121,15 +119,14 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
             }
             ctx.fillStyle = invert ? backColor : foreColor
-            const isSorted = i < 2
-            const isGlitch = i % 2 === 1
+            const isSorted = i === 0
             let lineNum = 0
-            for (let y = lineWidth / 2; y <= canvas.height * 2; y += lineWidth + bgLineWidth) {
-                for (let x = lineWidth / 2 + (!isSorted && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0); x <= canvas.width * 2; x += lineWidth + bgLineWidth) {
+            for (let y = lineWidth / 2; y < canvas.height * 2; y += lineWidth + bgLineWidth) {
+                for (let x = lineWidth / 2 + (!isSorted && lineNum % 2 === 0 ? lineWidth / 2 + bgLineWidth / 2 : 0); x < canvas.width * 2; x += lineWidth + bgLineWidth) {
                     ctx.lineWidth = 1
                     ctx.beginPath()
                     ctx.moveTo(x, y)
-                    ctx.arc(x, y, (lineWidth / 2) * (isGlitch ? 0.8 + 0.2 * Math.random() : 1), 0, Math.PI * 2)
+                    ctx.arc(x, y, (lineWidth / 2) * 0.7 + (lineWidth / 2) * 0.3 * Math.random(), 0, Math.PI * 2)
                     ctx.fill()
                     ctx.closePath()
                 }
@@ -137,6 +134,30 @@ const runs = (canvasSize: number, bgLineWidth: number, lineWidth: number, backCo
             }
         })
     }
+    // effect line
+    run('effect line', canvasSize, (canvas, ctx) => {
+        ctx.fillStyle = invert ? foreColor : backColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        for (let angle = 0; angle < Math.PI * 2; ) {
+            const span = (Math.PI / 360) * rnd(Math.max(lineWidth, 2))
+            ctx.fillStyle = rnd(2) === 0 ? foreColor : backColor
+            ctx.beginPath()
+            const startLen = bgLineWidth * 10 + rnd(bgLineWidth * 10)
+            const x0 = canvas.width / 2 + startLen * Math.cos(angle)
+            const y0 = canvas.height / 2 + startLen * Math.sin(angle)
+            ctx.moveTo(x0, y0)
+            const x1 = canvas.width / 2 + canvas.width * Math.cos(angle)
+            const y1 = canvas.height / 2 + canvas.width * Math.sin(angle)
+            ctx.lineTo(x1, y1)
+            const x2 = canvas.width / 2 + canvas.width * Math.cos(angle + span)
+            const y2 = canvas.height / 2 + canvas.width * Math.sin(angle + span)
+            ctx.lineTo(x2, y2)
+            ctx.lineTo(x0, y0)
+            ctx.closePath()
+            ctx.fill()
+            angle += span
+        }
+    })
     // simplex
     run('simplex', canvasSize, (canvas, ctx) => {
         const noise = new Noise(Math.random())
