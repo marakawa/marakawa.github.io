@@ -1,6 +1,6 @@
 export const rnd = (v: number) => Math.floor(Math.random() * v)
 
-export const loadImage = (fileInput: HTMLInputElement): Promise<HTMLImageElement | undefined> =>
+export const loadImage = (fileInput: HTMLInputElement, enableCanvas = false): Promise<HTMLImageElement | HTMLCanvasElement | undefined> =>
     new Promise((resolve) => {
         loadFile(fileInput).then((res) => {
             if (!res) {
@@ -8,7 +8,16 @@ export const loadImage = (fileInput: HTMLInputElement): Promise<HTMLImageElement
             }
             let img = new Image()
             img.onload = () => {
-                resolve(img)
+                if (enableCanvas) {
+                    const canvas = document.createElement('canvas')
+                    canvas.width = img.width
+                    canvas.height = img.height
+                    const ctx = canvas.getContext('2d')
+                    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+                    resolve(canvas)
+                } else {
+                    resolve(img)
+                }
             }
             img.src = res as string
         })

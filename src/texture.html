@@ -6,6 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Texture</title>
         <style>
+            body {
+                background-color: #999;
+                text-align: center;
+            }
             input[type='number'] {
                 width: 80px;
             }
@@ -21,7 +25,6 @@
             #canvases canvas {
                 display: block;
                 cursor: pointer;
-                border: 1px solid #999;
             }
         </style>
     </head>
@@ -33,17 +36,18 @@
             </div>
             <div>
                 <span>bg</span>
-                <input type="number" name="back" value="3" />
-                <input type="color" name="backcolor" value="#ffffff" />
+                <input type="number" name="bgLineWidth" value="3" />
+                <input type="color" name="bgColor" value="#ffffff" />
+            </div>
+            <div>
+                <span>transparent</span>
+                <input type="checkbox" name="transparent" />
+                <button class="invert-btn" type="button">invert ⇅</button>
             </div>
             <div>
                 <span>line</span>
-                <input type="number" name="fore" value="3" />
-                <input type="color" name="forecolor" value="#000000" />
-            </div>
-            <div>
-                <span>invert</span>
-                <input type="checkbox" name="invert" />
+                <input type="number" name="fgLineWidth" value="3" />
+                <input type="color" name="fgColor" value="#000000" />
             </div>
             <div>
                 <textarea id="text-input" name="text" placeholder="T-Shirt Text"></textarea>
