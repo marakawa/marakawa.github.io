@@ -173,6 +173,54 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
             }
         }
     })
+    // Procreate Split Pen 2
+    run('Procreate Split-Pen 2', canvasSize, (canvas, ctx) => {
+        ctx.fillStyle = bgColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        if (img) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+        const r = canvas.height / 16
+        ctx.fillStyle = fgColor
+        ctx.beginPath()
+        ctx.arc(canvas.width / 2, 0 + r, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, canvas.height - r, r, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.closePath()
+    })
+    // Procreate Split Pen 3
+    run('Procreate Split-Pen 3', canvasSize, (canvas, ctx) => {
+        ctx.fillStyle = bgColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        if (img) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+        const r = canvas.height / 16
+        ctx.fillStyle = fgColor
+        ctx.beginPath()
+        ctx.arc(canvas.width / 2, 0 + r, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, canvas.height / 2, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, canvas.height - r, r, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.closePath()
+    })
+    // Procreate Split Pen 4
+    run('Procreate Split-Pen 4', canvasSize, (canvas, ctx) => {
+        ctx.fillStyle = bgColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        if (img) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+        const r = canvas.height / 16
+        ctx.fillStyle = fgColor
+        ctx.beginPath()
+        ctx.arc(canvas.width / 2, 0 + r, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, r + (canvas.height - r * 2) / 3, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, r + ((canvas.height - r * 2) / 3) * 2, r, 0, Math.PI * 2)
+        ctx.arc(canvas.width / 2, canvas.height - r, r, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.closePath()
+    })
     // Human Generator T-shirt
     run('human generator t-shirt', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = fgColor
