@@ -77,7 +77,6 @@ window.addEventListener('load', () => {
         //
         scene.remove(renderGroup)
         renderGroup = canvas2Mesh(canvas, alphaPositions) || new THREE.Group()
-        renderGroup.scale.set(0.005, 0.005, 0.005)
         scene.add(renderGroup)
     })
 
@@ -111,6 +110,7 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
     const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
     const pixels: (Pixel | undefined)[][] = []
+    const meshRatio = 1 / canvas.width
     for (let y = 0; y < canvas.height; y++) {
         pixels[y] = []
         for (let x = 0; x < canvas.width; x++) {
@@ -133,17 +133,41 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
             }
         }
     }
+
+    // Texture without pink
+    const textureCanvas = document.createElement('canvas')
+    textureCanvas.width = canvas.width
+    textureCanvas.height = canvas.height
+    textureCanvas.getContext('2d')?.drawImage(canvas, 0, 0, canvas.width, canvas.height)
+    const texture = new THREE.CanvasTexture(textureCanvas)
+    texture.needsUpdate = true
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+    })
+
+    //
     let startPoint: Pixel | undefined = undefined
     for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
             const pixel = pixels[y][x]
             if (
                 pixel &&
-                !(x === 0 || y === 0 || x === canvas.width - 1 || y === canvas.height - 1) &&
-                (!pixels[y - 1][x] || !pixels[y - 1][x + 1] || !pixels[y][x + 1] || !pixels[y + 1][x + 1] || !pixels[y + 1][x] || !pixels[y + 1][x - 1] || !pixels[y][x - 1] || !pixels[y - 1][x - 1])
+                (x === 0 ||
+                    y === 0 ||
+                    x === canvas.width - 1 ||
+                    y === canvas.height - 1 ||
+                    !pixels[y - 1][x] ||
+                    !pixels[y - 1][x + 1] ||
+                    !pixels[y][x + 1] ||
+                    !pixels[y + 1][x + 1] ||
+                    !pixels[y + 1][x] ||
+                    !pixels[y + 1][x - 1] ||
+                    !pixels[y][x - 1] ||
+                    !pixels[y - 1][x - 1])
             ) {
-                // ctx.fillStyle = '#f0f'
-                // ctx.fillRect(x, y, 1, 1)
+                ctx.fillStyle = '#f0f'
+                ctx.fillRect(x, y, 1, 1)
                 pixel.line = true
                 startPoint = pixel
             }
@@ -205,8 +229,8 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
         if (!point) {
             return
         }
-        const x = point.x - canvas.width / 2
-        const y = -point.y + canvas.height / 2
+        const x = (point.x - canvas.width / 2) * meshRatio
+        const y = (-point.y + canvas.height / 2) * meshRatio
         if (i === 0) {
             shape.moveTo(x, y)
         } else {
@@ -215,20 +239,14 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
     })
     shape.closePath()
     const backMesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: '#000', side: THREE.DoubleSide }))
-    backMesh.position.z -= 0.5
-    backMesh.position.y += canvas.height / 2
+    backMesh.position.z -= 0.001
+    backMesh.position.y += (canvas.height * meshRatio) / 2
     renderGroup.add(backMesh)
 
     // Front Plane
-    const texture = new THREE.CanvasTexture(canvas)
-    texture.needsUpdate = true
-    const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-    })
-    const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width, canvas.height), material)
-    frontMesh.position.z += 0.5
-    frontMesh.position.y += canvas.height / 2
+    const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width * meshRatio, canvas.height * meshRatio, 10, 10), material)
+    frontMesh.position.z += 0.001
+    frontMesh.position.y += (canvas.height * meshRatio) / 2
     renderGroup.add(frontMesh)
 
     return renderGroup
