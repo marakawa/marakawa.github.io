@@ -63,6 +63,12 @@ window.addEventListener('load', () => {
     frontCanvas.height = 100
     document.body.appendChild(frontCanvas)
     const frontInput = document.querySelector('#front-input') as HTMLInputElement
+    const backCanvas = document.createElement('canvas')
+    backCanvas.width = 100
+    backCanvas.height = 100
+    backCanvas.getContext('2d')?.fillRect(0, 0, backCanvas.width, backCanvas.height)
+    document.body.appendChild(backCanvas)
+    const backInput = document.querySelector('#back-input') as HTMLInputElement
     frontInput.addEventListener('change', async (e) => {
         const img = await loadImage(frontInput)
         if (!img) {
@@ -70,18 +76,20 @@ window.addEventListener('load', () => {
         }
         frontCanvas.width = img.width
         frontCanvas.height = img.height
-        const ctx = frontCanvas.getContext('2d') as CanvasRenderingContext2D
-        ctx.clearRect(0, 0, frontCanvas.width, frontCanvas.height)
-        ctx.drawImage(img, 0, 0, frontCanvas.width, frontCanvas.height)
+        const frontCtx = frontCanvas.getContext('2d') as CanvasRenderingContext2D
+        frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height)
+        frontCtx.drawImage(img, 0, 0, frontCanvas.width, frontCanvas.height)
+        //
+        backCanvas.width = img.width
+        backCanvas.height = img.height
+        const backCtx = backCanvas.getContext('2d') as CanvasRenderingContext2D
+        backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height)
+        backCtx.save()
+        backCtx.translate(backCanvas.width, 0)
+        backCtx.scale(-1, 1)
+        backCtx.drawImage(img, 0, 0, backCanvas.width, backCanvas.height)
+        backCtx.restore()
     })
-
-    //
-    const backCanvas = document.createElement('canvas')
-    backCanvas.width = 100
-    backCanvas.height = 100
-    backCanvas.getContext('2d')?.fillRect(0, 0, backCanvas.width, backCanvas.height)
-    document.body.appendChild(backCanvas)
-    const backInput = document.querySelector('#back-input') as HTMLInputElement
     backInput.addEventListener('change', async (e) => {
         const img = await loadImage(backInput)
         if (!img) {
