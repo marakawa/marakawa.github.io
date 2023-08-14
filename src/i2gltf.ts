@@ -27,12 +27,6 @@ window.addEventListener('load', () => {
     let renderGroup = new THREE.Group()
     scene.add(renderGroup)
 
-    // Canvas
-    const canvas = document.createElement('canvas')
-    canvas.width = 100
-    canvas.height = 100
-    document.body.appendChild(canvas)
-
     //
     let alphaPositions: AlphaPositions = {}
     const depthInput = document.querySelector('#depth-input') as HTMLInputElement
@@ -41,6 +35,7 @@ window.addEventListener('load', () => {
         if (!img) {
             return
         }
+        const canvas = document.createElement('canvas')
         canvas.width = img.width
         canvas.height = img.height
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
@@ -63,20 +58,47 @@ window.addEventListener('load', () => {
     })
 
     //
-    const fileInput = document.querySelector('#file-input') as HTMLInputElement
-    fileInput.addEventListener('change', async (e) => {
-        const img = await loadImage(fileInput)
+    const frontCanvas = document.createElement('canvas')
+    frontCanvas.width = 100
+    frontCanvas.height = 100
+    document.body.appendChild(frontCanvas)
+    const frontInput = document.querySelector('#front-input') as HTMLInputElement
+    frontInput.addEventListener('change', async (e) => {
+        const img = await loadImage(frontInput)
         if (!img) {
             return
         }
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        //
+        frontCanvas.width = img.width
+        frontCanvas.height = img.height
+        const ctx = frontCanvas.getContext('2d') as CanvasRenderingContext2D
+        ctx.clearRect(0, 0, frontCanvas.width, frontCanvas.height)
+        ctx.drawImage(img, 0, 0, frontCanvas.width, frontCanvas.height)
+    })
+
+    //
+    const backCanvas = document.createElement('canvas')
+    backCanvas.width = 100
+    backCanvas.height = 100
+    backCanvas.getContext('2d')?.fillRect(0, 0, backCanvas.width, backCanvas.height)
+    document.body.appendChild(backCanvas)
+    const backInput = document.querySelector('#back-input') as HTMLInputElement
+    backInput.addEventListener('change', async (e) => {
+        const img = await loadImage(backInput)
+        if (!img) {
+            return
+        }
+        backCanvas.width = img.width
+        backCanvas.height = img.height
+        const ctx = backCanvas.getContext('2d') as CanvasRenderingContext2D
+        ctx.clearRect(0, 0, backCanvas.width, backCanvas.height)
+        ctx.drawImage(img, 0, 0, backCanvas.width, backCanvas.height)
+    })
+
+    // Convert
+    const convertBtn = document.querySelector('#convert-btn') as HTMLButtonElement
+    convertBtn.addEventListener('click', async () => {
         scene.remove(renderGroup)
-        renderGroup = canvas2Mesh(canvas, alphaPositions) || new THREE.Group()
+        renderGroup = canvas2Mesh(frontCanvas, backCanvas, alphaPositions) || new THREE.Group()
         scene.add(renderGroup)
     })
 
@@ -106,8 +128,9 @@ interface AlphaPositions {
     [x_y: string]: boolean
 }
 
-const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Group | undefined => {
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+const canvas2Mesh = (frontCanvas: HTMLCanvasElement, backCanvas: HTMLCanvasElement, alphaPositions = {}): THREE.Group | undefined => {
+    const canvas = frontCanvas
+    const ctx = frontCanvas.getContext('2d') as CanvasRenderingContext2D
     const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
     const pixels: (Pixel | undefined)[][] = []
     const meshRatio = 1 / canvas.width
@@ -135,14 +158,24 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
     }
 
     // Texture without pink
-    const textureCanvas = document.createElement('canvas')
-    textureCanvas.width = canvas.width
-    textureCanvas.height = canvas.height
-    textureCanvas.getContext('2d')?.drawImage(canvas, 0, 0, canvas.width, canvas.height)
-    const texture = new THREE.CanvasTexture(textureCanvas)
-    texture.needsUpdate = true
-    const material = new THREE.MeshBasicMaterial({
-        map: texture,
+    const frontTextureCanvas = document.createElement('canvas')
+    frontTextureCanvas.width = frontCanvas.width
+    frontTextureCanvas.height = frontCanvas.height
+    frontTextureCanvas.getContext('2d')?.drawImage(frontCanvas, 0, 0, frontCanvas.width, frontCanvas.height)
+    const frontTexture = new THREE.CanvasTexture(frontTextureCanvas)
+    frontTexture.needsUpdate = true
+    const frontMaterial = new THREE.MeshBasicMaterial({
+        map: frontTexture,
+        transparent: true,
+    })
+    const backTextureCanvas = document.createElement('canvas')
+    backTextureCanvas.width = backCanvas.width
+    backTextureCanvas.height = backCanvas.height
+    backTextureCanvas.getContext('2d')?.drawImage(backCanvas, 0, 0, backCanvas.width, backCanvas.height)
+    const backTexture = new THREE.CanvasTexture(backTextureCanvas)
+    backTexture.needsUpdate = true
+    const backMaterial = new THREE.MeshBasicMaterial({
+        map: backTexture,
         transparent: true,
     })
 
@@ -223,14 +256,14 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
     // 3D
     const renderGroup = new THREE.Group()
 
-    // Back Plane
+    // Middle Plane
     const shape = new THREE.Shape()
     validPoints.forEach((point, i) => {
         if (!point) {
             return
         }
-        const x = (point.x - canvas.width / 2) * meshRatio
-        const y = (-point.y + canvas.height / 2) * meshRatio
+        const x = (point.x - frontCanvas.width / 2) * meshRatio
+        const y = (-point.y + frontCanvas.height / 2) * meshRatio
         if (i === 0) {
             shape.moveTo(x, y)
         } else {
@@ -238,16 +271,22 @@ const canvas2Mesh = (canvas: HTMLCanvasElement, alphaPositions = {}): THREE.Grou
         }
     })
     shape.closePath()
-    const backMesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: '#000', side: THREE.DoubleSide }))
-    backMesh.position.z -= 0.001
-    backMesh.position.y += (canvas.height * meshRatio) / 2
-    renderGroup.add(backMesh)
+    const middleMesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshBasicMaterial({ color: '#000', side: THREE.DoubleSide }))
+    middleMesh.position.y += (frontCanvas.height * meshRatio) / 2
+    renderGroup.add(middleMesh)
 
     // Front Plane
-    const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width * meshRatio, canvas.height * meshRatio, 10, 10), material)
-    frontMesh.position.z += 0.001
-    frontMesh.position.y += (canvas.height * meshRatio) / 2
+    const frontMesh = new THREE.Mesh(new THREE.PlaneGeometry(frontCanvas.width * meshRatio, frontCanvas.height * meshRatio, 10, 10), frontMaterial)
+    frontMesh.position.z += 0.002
+    frontMesh.position.y += (frontCanvas.height * meshRatio) / 2
     renderGroup.add(frontMesh)
+
+    // Back Plane
+    const backMesh = new THREE.Mesh(new THREE.PlaneGeometry(backCanvas.width * meshRatio, backCanvas.height * meshRatio, 10, 10), backMaterial)
+    backMesh.position.z -= 0.002
+    backMesh.position.y += (backCanvas.height * meshRatio) / 2
+    backMesh.rotateY(Math.PI)
+    renderGroup.add(backMesh)
 
     return renderGroup
 }
