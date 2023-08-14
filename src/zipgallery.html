@@ -84,7 +84,7 @@
                     files = []
                     fileIndex = 0
                     Object.keys(zip.files).forEach((fileName) => {
-                        if (!fileName.match(new RegExp(`^${zipName}/.+\\.(jpe?g|png|gif)$`))) {
+                        if (!fileName.match(new RegExp(`^${zipName}/.+\\.(jpe?g|png|gif)$`, 'i'))) {
                             return
                         }
                         const file = zip.files[fileName]

@@ -31,7 +31,7 @@ export const loadFile = (fileInput: HTMLInputElement): Promise<undefined | strin
             return undefined
         }
         const file = files[0]
-        const isImage = file.name.match(/\.(png|jpe?g|gif)$/)
+        const isImage = file.name.match(/\.(png|jpe?g|gif)$/i)
         const reader = new FileReader()
         reader.onload = () => {
             if (reader.result) {
