@@ -173,6 +173,61 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
             }
         }
     })
+    // paper
+    for (let r = 0; r < 1; r++) {
+        run(`paper_${r}`, canvasSize, (canvas, ctx) => {
+            const noise = new Noise(Math.random())
+            ctx.fillStyle = bgColor
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            if (img) {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            }
+            // const ratios: number[] = []
+            // for (let i = 1; i <= 100; i = i * 2) {
+            //     ratios.push(i)
+            // }
+            const ratios = [1, 5, 5, 10, 10, 10, 20, 20, 20, 20, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+            ratios.forEach((ratio, z) => {
+                for (let y = 0; y < canvas.height; y += fgLineWidth) {
+                    for (let x = 0; x < canvas.height; x += fgLineWidth) {
+                        const n = noise.simplex3(x / (bgLineWidth * ratio) + 1, y / (bgLineWidth * ratio) + 1, z)
+                        if (n > 0) {
+                            ctx.globalAlpha = 0.1 * n
+                            ctx.fillStyle = fgColor
+                            ctx.fillRect(x, y, fgLineWidth, fgLineWidth)
+                        }
+                    }
+                }
+            })
+            //
+            for (let i = 0; i < canvas.width / 5; i++) {
+                const v = Math.random() < 0.5 ? 0 : 255
+                ctx.fillStyle = `rgba(${v}, ${v}, ${v}, ${0.1 * Math.random()})`
+                ctx.beginPath()
+                ctx.arc(rnd(canvas.width), rnd(canvas.height), canvas.height * 0.005 * Math.random(), 0, Math.PI * 2)
+                ctx.fill()
+                ctx.closePath()
+            }
+            //
+            for (let i = 0; i < canvas.width / 10; i++) {
+                const v = 0
+                ctx.strokeStyle = `rgba(${v}, ${v}, ${v}, ${0.1 * Math.random()})`
+                ctx.lineCap = 'round'
+                ctx.lineWidth = canvas.height * 0.005 * Math.random()
+                ctx.beginPath()
+                const sx = rnd(canvas.width)
+                const sy = rnd(canvas.height)
+                const len = canvas.width * (0.02 * Math.random())
+                const angle = Math.PI * 2 * Math.random()
+                const ex = sx + len * Math.cos(angle)
+                const ey = sy + len * Math.sin(angle)
+                ctx.moveTo(sx, sy)
+                ctx.lineTo(ex, ey)
+                ctx.stroke()
+                ctx.closePath()
+            }
+        })
+    }
     // Procreate Split Pen 2
     run('Procreate Split-Pen 2', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor

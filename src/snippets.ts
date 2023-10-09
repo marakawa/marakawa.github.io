@@ -6,7 +6,7 @@ window.addEventListener('load', () => {
         const outputJson = {
             scope: 'javascript,typescript,typescriptreact',
             prefix: '_',
-            body: inputText.split('\n').map((line) => line.replace('"', '\\"')),
+            body: inputText.split('\n').map((line) => line.replace('"', '\\"').replace('$', '\\$')),
         }
         outputElem.value = JSON.stringify(outputJson, undefined, 4)
     })
