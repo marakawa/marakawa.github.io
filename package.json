@@ -30,7 +30,6 @@
         "url-loader": "^4.1.1"
     },
     "dependencies": {
-        "blocks-mcpacker": "github:marakawa/blocks-mcpacker",
         "classnames": "^2.3.2",
         "file-saver": "^2.0.5",
         "i18next": "^23.7.11",
