@@ -1,14 +1,25 @@
-window.addEventListener('load', () => {
-    const inputElem = document.querySelector('#input-elem') as HTMLInputElement
-    const exportBtn = document.querySelector('#export-btn') as HTMLButtonElement
+import { CSSProperties, MouseEventHandler, ReactNode, useState } from 'react'
+import classNames from 'classnames'
+import styles from './LumaSrt.module.scss'
 
-    interface Marker {
-        start: number
-        text: string
-    }
-    let markers: Marker[] = []
-    let clipEnd = 3600 * 10
-    inputElem.addEventListener('change', (e) => {
+interface Marker {
+    start: number
+    text: string
+}
+
+interface Props {
+    children?: ReactNode
+    className?: string
+    style?: CSSProperties
+    onClick?: MouseEventHandler<HTMLDivElement>
+}
+
+function LumaSrt({ children, className, style, onClick }: Props): JSX.Element {
+    const [markers, setMarkers] = useState<Marker[]>([])
+    const [clipEnd, setClipEnd] = useState<number>(3600 * 10)
+
+    //
+    const onChangeInput = (e: any) => {
         const files = (e.target as HTMLInputElement).files
         if (!files || !files[0]) {
             return
@@ -37,7 +48,8 @@ window.addEventListener('load', () => {
                 }
             }
             let currentSec = 0
-            markers = []
+            const markers = []
+            let clipEnd = 3600 * 10
             matches.forEach((str) => {
                 const matches = str.match(regex)
                 if (!matches) {
@@ -57,12 +69,14 @@ window.addEventListener('load', () => {
                     })
                 }
             })
+            setMarkers(markers)
+            setClipEnd(clipEnd)
         }
         reader.readAsText(file)
-    })
+    }
 
     // Export
-    exportBtn.addEventListener('click', () => {
+    const exportSrt = () => {
         if (markers.length === 0) {
             return
         }
@@ -88,5 +102,16 @@ window.addEventListener('load', () => {
         a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
         a.download = 'srt'
         a.click()
-    })
-})
+    }
+
+    // Render
+    return (
+        <div className={classNames(styles.LumaSrt, className)} style={style} onClick={(e) => onClick && (e.target as HTMLElement).classList.contains(styles.LumaSrt) && onClick(e)}>
+            <input type="file" onChange={onChangeInput} />
+            <button onClick={exportSrt}>Export</button>
+            {children}
+        </div>
+    )
+}
+
+export default LumaSrt

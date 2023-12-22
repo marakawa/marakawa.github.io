@@ -3,24 +3,46 @@
     "version": "1.0.0",
     "description": "- https://marakawa.github.io",
     "scripts": {
-        "start": "npm run clean && open -a 'Google Chrome' http://localhost:1234 && parcel ./src/index.html",
-        "build": "npm run clean && parcel build ./src/index.html",
-        "clean": "rm -rf .parcel-cache dist"
+        "start": "npm run clean && open -a 'Google Chrome' http://localhost:8080/ && cross-env NODE_ENV=development rspack serve -c 'rspack.config.ts' --mode development",
+        "build": "npm run clean && rspack build -c rspack.config.ts --mode production && zip -r ./www.zip ./www",
+        "clean": "rm -rf ./www"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@rspack/cli": "^0.2.12",
+        "@svgr/webpack": "^8.1.0",
+        "@types/react": "^18.2.45",
+        "@types/react-dom": "^18.2.18",
         "@types/three": "^0.152.1",
         "buffer": "^5.7.1",
+        "cross-env": "^7.0.3",
+        "css-loader": "^6.8.1",
+        "file-loader": "^6.2.0",
         "parcel": "^2.8.3",
-        "process": "^0.11.10"
+        "process": "^0.11.10",
+        "raw-loader": "^4.0.2",
+        "sass": "^1.69.5",
+        "sass-loader": "^13.3.2",
+        "style-loader": "^3.3.3",
+        "ts-node": "^10.9.2",
+        "url-loader": "^4.1.1"
     },
     "dependencies": {
         "blocks-mcpacker": "github:marakawa/blocks-mcpacker",
+        "classnames": "^2.3.2",
         "file-saver": "^2.0.5",
+        "i18next": "^23.7.11",
+        "i18next-browser-languagedetector": "^7.2.0",
         "jszip": "^3.10.1",
         "noisejs": "^2.1.0",
-        "three": "^0.153.0"
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-helmet": "^6.1.0",
+        "react-i18next": "^14.0.0",
+        "react-icons": "^4.12.0",
+        "three": "^0.153.0",
+        "tone": "^14.7.77"
     }
 }

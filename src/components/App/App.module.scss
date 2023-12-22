@@ -1,0 +1,18 @@
+.App {
+    text-align: center;
+
+    &,
+    *,
+    *:after,
+    *:before {
+        box-sizing: border-box;
+        user-select: none;
+    }
+
+    &__Links {
+        & > a {
+            padding: 15px;
+            display: inline-block;
+        }
+    }
+}

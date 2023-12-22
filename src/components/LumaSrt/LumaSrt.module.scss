@@ -1,0 +1,9 @@
+.LumaSrt {
+    &,
+    *,
+    *:after,
+    *:before {
+        box-sizing: border-box;
+        user-select: none;
+    }
+}

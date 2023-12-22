@@ -1,7 +1,11 @@
-import { downloadCanvas, loadImage, rnd } from './common/utils'
+import { CSSProperties, MouseEventHandler, ReactNode, useEffect, useState } from 'react'
+import classNames from 'classnames'
+import styles from './TextureGenerator.module.scss'
+import { downloadCanvas, loadImage, rnd } from '../../common/utils'
 import { Noise } from 'noisejs'
 
-const run = (title: string, canvasSize: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
+// Run
+const run = (container: HTMLElement, title: string, canvasSize: number, callback: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => void) => {
     const itemElem = document.createElement('div')
     const canvas = document.createElement('canvas')
     canvas.width = canvasSize
@@ -16,10 +20,10 @@ const run = (title: string, canvasSize: number, callback: (canvas: HTMLCanvasEle
     titleElem.innerText = title
     itemElem.appendChild(titleElem)
     itemElem.appendChild(canvas)
-    const container = document.querySelector('#canvases') as HTMLElement
     container.appendChild(itemElem)
 }
 
+// Run
 const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgColor: string, fgColor: string, sub = false, img?: HTMLImageElement | HTMLCanvasElement) => {
     if (bgLineWidth === 0 || fgLineWidth === 0) {
         return
@@ -27,7 +31,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     const container = document.querySelector('#canvases') as HTMLElement
     container.innerHTML = ''
     // Flat
-    run('flat', canvasSize, (canvas, ctx) => {
+    run(container, 'flat', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         if (img) {
@@ -35,7 +39,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         }
     })
     // Grad
-    run('grad', canvasSize, (canvas, ctx) => {
+    run(container, 'grad', canvasSize, (canvas, ctx) => {
         const grad = ctx.createLinearGradient(0, 0, 0, canvas.height)
         grad.addColorStop(0, bgColor)
         grad.addColorStop(1, fgColor)
@@ -47,7 +51,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     })
     // +
     for (let i = 0; i < 3; i++) {
-        run('plus', canvasSize, (canvas, ctx) => {
+        run(container, 'plus', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = bgColor
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             if (img) {
@@ -73,7 +77,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     }
     // x
     for (let i = 0; i < 3; i++) {
-        run('cross', canvasSize, (canvas, ctx) => {
+        run(container, 'cross', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = bgColor
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             if (img) {
@@ -106,7 +110,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     }
     // .
     for (let i = 0; i < 2; i++) {
-        run('dots', canvasSize, (canvas, ctx) => {
+        run(container, 'dots', canvasSize, (canvas, ctx) => {
             ctx.fillStyle = bgColor
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             if (img) {
@@ -129,7 +133,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         })
     }
     // effect line
-    run('effect line', canvasSize, (canvas, ctx) => {
+    run(container, 'effect line', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         if (img) {
@@ -156,7 +160,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         }
     })
     // simplex
-    run('simplex', canvasSize, (canvas, ctx) => {
+    run(container, 'simplex', canvasSize, (canvas, ctx) => {
         const noise = new Noise(Math.random())
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -175,7 +179,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     })
     // paper
     for (let r = 0; r < 1; r++) {
-        run(`paper_${r}`, canvasSize, (canvas, ctx) => {
+        run(container, `paper_${r}`, canvasSize, (canvas, ctx) => {
             const noise = new Noise(Math.random())
             ctx.fillStyle = bgColor
             ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -229,7 +233,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         })
     }
     // Procreate Split Pen 2
-    run('Procreate Split-Pen 2', canvasSize, (canvas, ctx) => {
+    run(container, 'Procreate Split-Pen 2', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         if (img) {
@@ -244,7 +248,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         ctx.closePath()
     })
     // Procreate Split Pen 3
-    run('Procreate Split-Pen 3', canvasSize, (canvas, ctx) => {
+    run(container, 'Procreate Split-Pen 3', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         if (img) {
@@ -260,7 +264,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         ctx.closePath()
     })
     // Procreate Split Pen 4
-    run('Procreate Split-Pen 4', canvasSize, (canvas, ctx) => {
+    run(container, 'Procreate Split-Pen 4', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = bgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         if (img) {
@@ -277,7 +281,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         ctx.closePath()
     })
     // Human Generator T-shirt
-    run('human generator t-shirt', canvasSize, (canvas, ctx) => {
+    run(container, 'human generator t-shirt', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = fgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = bgColor
@@ -290,7 +294,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         }
     })
     // Unity VRM T-shirt
-    run('unity vrm', canvasSize, (canvas, ctx) => {
+    run(container, 'unity vrm', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = fgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = bgColor
@@ -302,7 +306,7 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
         }
     })
     // Unity Space Robot Kyle
-    run('unity space robot kyle', canvasSize, (canvas, ctx) => {
+    run(container, 'unity space robot kyle', canvasSize, (canvas, ctx) => {
         ctx.fillStyle = fgColor
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = bgColor
@@ -327,9 +331,18 @@ const runs = (canvasSize: number, bgLineWidth: number, fgLineWidth: number, bgCo
     })
 }
 
-window.addEventListener('load', () => {
-    const form = document.querySelector('#control-form') as HTMLFormElement
-    const updateByForm = (img?: HTMLImageElement | HTMLCanvasElement) => {
+interface Props {
+    children?: ReactNode
+    className?: string
+    style?: CSSProperties
+    onClick?: MouseEventHandler<HTMLDivElement>
+}
+
+function TextureGenerator({ children, className, style, onClick }: Props): JSX.Element {
+    const [tShirtText, setTShirtText] = useState<string>('')
+
+    //
+    const updateByForm = (form: HTMLFormElement, img?: HTMLImageElement | HTMLCanvasElement) => {
         const formData = new FormData(form)
         const fgColor = formData.get('fgColor') as string
         const bgColor = formData.get('bgColor') as string
@@ -343,7 +356,9 @@ window.addEventListener('load', () => {
             img,
         )
     }
-    const createTextCanvas = (text: string) => {
+
+    //
+    const createTextCanvas = (form: HTMLFormElement, text: string) => {
         const formData = new FormData(form)
         const canvas = document.createElement('canvas')
         canvas.width = 300
@@ -370,35 +385,66 @@ window.addEventListener('load', () => {
         })
         return canvas
     }
-    form.addEventListener('submit', async (e) => {
+
+    //
+    const onSubmit = async (e: any) => {
         e.preventDefault()
-        const textInput = document.querySelector('#text-input') as HTMLInputElement
-        let textCanvas = textInput.value.trim().length ? createTextCanvas(textInput.value) : undefined
+        const form = e.target as HTMLFormElement
+        let textCanvas = tShirtText.trim().length ? createTextCanvas(form, tShirtText.trim()) : undefined
         const imageInput = document.querySelector('#image-input') as HTMLInputElement
         let imgCanvas = (await loadImage(imageInput, true)) as HTMLCanvasElement | undefined
         if (imgCanvas && textCanvas) {
             imgCanvas.getContext('2d')?.drawImage(textCanvas, 0, 0, imgCanvas.width, imgCanvas.height)
-            updateByForm(imgCanvas)
+            updateByForm(form, imgCanvas)
         } else if (imgCanvas) {
-            updateByForm(imgCanvas)
+            updateByForm(form, imgCanvas)
         } else if (textCanvas) {
-            updateByForm(textCanvas)
+            updateByForm(form, textCanvas)
         } else {
-            updateByForm()
+            updateByForm(form)
         }
-    })
-    updateByForm()
+    }
 
-    // Invert
-    const invertBtn = document.querySelector('.invert-btn')
-    invertBtn?.addEventListener('click', () => {
-        const colorElem1 = document.querySelector('input[name="bgColor"]') as HTMLInputElement
-        const colorElem2 = document.querySelector('input[name="fgColor"]') as HTMLInputElement
-        if (colorElem1 && colorElem2) {
-            const color1 = colorElem1.value
-            const color2 = colorElem2.value
-            colorElem1.setAttribute('value', color2)
-            colorElem2.setAttribute('value', color1)
-        }
-    })
-})
+    // Render
+    return (
+        <div className={classNames(styles.TextureGenerator, className)} style={style} onClick={(e) => onClick && (e.target as HTMLElement).classList.contains(styles.TextureGenerator) && onClick(e)}>
+            <form onSubmit={onSubmit}>
+                <div>
+                    <span>size</span>
+                    <input type="number" name="size" defaultValue="720" />
+                </div>
+                <div>
+                    <span>bg</span>
+                    <input type="number" name="bgLineWidth" defaultValue="3" />
+                    <input type="color" name="bgColor" defaultValue="#ffffff" />
+                </div>
+                <div>
+                    <span>transparent</span>
+                    <input type="checkbox" name="transparent" />
+                </div>
+                <div>
+                    <span>line</span>
+                    <input type="number" name="fgLineWidth" defaultValue="3" />
+                    <input type="color" name="fgColor" defaultValue="#000000" />
+                </div>
+                <div>
+                    <textarea id="text-input" name="text" placeholder="T-Shirt Text" onChange={(e) => setTShirtText(e.target.value)} value={tShirtText}></textarea>
+                </div>
+                <div>
+                    <span>image</span>
+                    <input id="image-input" type="file" name="image" />
+                </div>
+                <div>
+                    <span>sub mode</span>
+                    <input type="checkbox" name="sub" />
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+            <hr />
+            <div id="canvases"></div>
+            {children}
+        </div>
+    )
+}
+
+export default TextureGenerator
