@@ -5,6 +5,7 @@ import LumaSrt from '../LumaSrt/LumaSrt'
 import SnippetsGenerator from '../SnippetsGenerator/SnippetsGenerator'
 import Text2Vsqx from '../Text2Vsqx/Text2Vsqx'
 import TextureGenerator from '../TextureGenerator/TextureGenerator'
+import BrailleTyping from '../BrailleTyping/BrailleTyping'
 
 interface Props {
     children?: ReactNode
@@ -14,7 +15,8 @@ interface Props {
 }
 
 function App({ children, className, style, onClick }: Props): JSX.Element {
-    const [tool, setTool] = useState<string>('')
+    const [tool, setTool] = useState<string>('BrailleTyping')
+
     // Render
     return (
         <div className={classNames(styles.App, className)} style={style} onClick={(e) => onClick && (e.target as HTMLElement).classList.contains(styles.App) && onClick(e)}>
@@ -37,6 +39,10 @@ function App({ children, className, style, onClick }: Props): JSX.Element {
                     <input type="radio" name="tool" onClick={() => setTool('TextureGenerator')} />
                     texture
                 </label>
+                <label>
+                    <input type="radio" name="tool" onClick={() => setTool('BrailleTyping')} />
+                    braille
+                </label>
             </div>
             <div>
                 {tool === 'LumaSrt' ? (
@@ -47,6 +53,8 @@ function App({ children, className, style, onClick }: Props): JSX.Element {
                     <Text2Vsqx></Text2Vsqx>
                 ) : tool === 'TextureGenerator' ? (
                     <TextureGenerator></TextureGenerator>
+                ) : tool === 'BrailleTyping' ? (
+                    <BrailleTyping></BrailleTyping>
                 ) : (
                     <div></div>
                 )}

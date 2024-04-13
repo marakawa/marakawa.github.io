@@ -1,0 +1,13 @@
+.BrailleTyping {
+    &,
+    *,
+    *:after,
+    *:before {
+        box-sizing: border-box;
+        user-select: none;
+    }
+
+    &__Braille {
+        font-size: 64px;
+    }
+}
