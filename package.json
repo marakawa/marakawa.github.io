@@ -5,7 +5,8 @@
     "scripts": {
         "start": "npm run clean && open -a 'Google Chrome' http://localhost:8080/ && cross-env NODE_ENV=development rspack serve -c 'rspack.config.ts' --mode development",
         "build": "npm run clean && rspack build -c rspack.config.ts --mode production && zip -r ./www.zip ./www",
-        "clean": "rm -rf ./www"
+        "clean": "rm -rf ./www",
+        "test": "echo \"OK\""
     },
     "keywords": [],
     "author": "",

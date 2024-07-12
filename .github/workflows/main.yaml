@@ -1,0 +1,51 @@
+name: Build, Test and Deploy
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    build-and-test:
+        concurrency: ${{ github.workflow }}-${{ github.ref }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Set up pages
+              uses: actions/configure-pages@v3
+            - name: Set up node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: latest
+            - name: Cache node_modules
+              uses: actions/cache@v3
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: ${{ runner.os }}-npm-
+            - name: Install node_modules
+              run: npm ci
+            - name: Build
+              run: npm run build
+            - name: Test
+              run: npm test
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v1
+              with:
+                  path: 'dist/'
+    deploy:
+        needs: build-and-test
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v1
