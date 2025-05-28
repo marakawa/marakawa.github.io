@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "scripts": {
         "start": "npm run clear && parcel ./src/index.html --open --dist-dir www",
-        "build": "npm run clear && parcel build ./src/index.html --dist-dir www",
+        "build": "npm run clear && parcel build ./src/index.html --dist-dir www --public-url ./",
         "clear": "rm -rf www && rm -rf .cache && rm -rf .parcel-cache",
+        "serve": "php -S localhost:8000 -t www",
         "test": "echo \"OK\""
     },
     "keywords": [],

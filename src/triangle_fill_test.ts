@@ -97,7 +97,7 @@ function isPointInTriangle(p: Vec2, a: Vec2, b: Vec2, c: Vec2) {
     return cross1 >= 0 && cross2 >= 0 && cross3 >= 0
 }
 
-function main() {
+function main_func() {
     const canvas = document.createElement('canvas')
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
@@ -201,4 +201,4 @@ function main() {
     setInterval(() => render(), 1000 / 15)
 }
 
-window.addEventListener('load', main)
+window.addEventListener('load', main_func)

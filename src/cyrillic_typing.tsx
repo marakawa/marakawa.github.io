@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { EN_TO_RU_LIST, WORDS } from './words'
+import { EN_TO_RU_LIST, WORDS } from './cyrillic_typing_words'
 import { createRoot } from 'react-dom/client'
-import './style.css'
+import './cyrillic_typing.css'
 
 function shuffle<T>(original: T[]): T[] {
     const array = [...original]
