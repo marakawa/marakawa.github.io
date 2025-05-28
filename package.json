@@ -8,7 +8,9 @@
         "serve": "php -S localhost:8000 -t www",
         "test": "echo \"OK\""
     },
-    "keywords": [],
+    "keywords": [
+        "marakawa"
+    ],
     "author": "",
     "license": "ISC",
     "description": "",
