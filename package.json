@@ -1,0 +1,24 @@
+{
+    "name": "marakawa",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "npm run clear && parcel ./src/index.html --open --dist-dir www",
+        "build": "npm run clear && parcel build ./src/index.html --dist-dir www",
+        "clear": "rm -rf www && rm -rf .cache && rm -rf .parcel-cache",
+        "test": "echo \"OK\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "parcel": "^2.15.2",
+        "process": "^0.11.10",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0"
+    },
+    "dependencies": {
+        "@types/react": "^19.1.4",
+        "@types/react-dom": "^19.1.5"
+    }
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Game</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            #log {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                color: #fff;
+            }
+            #controls {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="log"></div>
+        <div id="controls">
+            <button id="dl-btn">DL</button>
+            <button id="clear-btn">CLEAR</button>
+        </div>
+        <script src="https://unpkg.com/@tonejs/midi"></script>
+        <script src="index.js" type="module"></script>
+    </body>
+</html>

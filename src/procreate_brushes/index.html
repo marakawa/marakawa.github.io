@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>procreate_brushes</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                width: 768px;
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 0 30px;
+            }
+            canvas {
+                display: inline-block;
+                margin: 5px;
+                border: 1px solid #000;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Procreate Brushes</h1>
+        <div>
+            <button id="download-btn">Download All</button>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        <script>
+            const brushes = [
+                //
+                [['#fff']],
+                [['#000']],
+                //
+                [
+                    ['#fff', '#000'],
+                    ['#000', '#fff'],
+                ],
+                [
+                    ['#000', '#fff'],
+                    ['#fff', '#000'],
+                ],
+                //
+                [
+                    ['#fff', '#fff'],
+                    ['#000', '#000'],
+                ],
+                [
+                    ['#000', '#000'],
+                    ['#fff', '#fff'],
+                ],
+                //
+                [
+                    ['#fff', '#000'],
+                    ['#fff', '#000'],
+                ],
+                [
+                    ['#000', '#fff'],
+                    ['#000', '#fff'],
+                ],
+                //
+                [
+                    ['#fff', '#000'],
+                    ['#000', '#000'],
+                ],
+                [
+                    ['#000', '#fff'],
+                    ['#fff', '#fff'],
+                ],
+                //
+                [
+                    ['#fff', '#fff', '#fff'],
+                    ['#000', '#000', '#000'],
+                    ['#000', '#000', '#000'],
+                ],
+                [
+                    ['#000', '#000', '#000'],
+                    ['#fff', '#fff', '#fff'],
+                    ['#fff', '#fff', '#fff'],
+                ],
+                //
+                [
+                    ['#fff', '#000', '#000'],
+                    ['#fff', '#000', '#000'],
+                    ['#fff', '#000', '#000'],
+                ],
+                [
+                    ['#000', '#fff', '#fff'],
+                    ['#000', '#fff', '#fff'],
+                    ['#000', '#fff', '#fff'],
+                ],
+                //
+                [
+                    ['#fff', '#fff', '#000', '#fff'],
+                    ['#fff', '#fff', '#fff', '#fff'],
+                    ['#000', '#fff', '#fff', '#fff'],
+                    ['#fff', '#fff', '#fff', '#fff'],
+                ],
+                [
+                    ['#000', '#000', '#fff', '#000'],
+                    ['#000', '#000', '#000', '#000'],
+                    ['#fff', '#000', '#000', '#000'],
+                    ['#000', '#000', '#000', '#000'],
+                ],
+                //
+                [
+                    ['#fff', '#000', '#fff', '#000'],
+                    ['#000', '#000', '#000', '#fff'],
+                    ['#fff', '#000', '#fff', '#000'],
+                    ['#000', '#fff', '#000', '#000'],
+                ],
+                [
+                    ['#000', '#fff', '#000', '#fff'],
+                    ['#fff', '#fff', '#fff', '#000'],
+                    ['#000', '#fff', '#000', '#fff'],
+                    ['#fff', '#000', '#fff', '#fff'],
+                ],
+            ]
+            document.querySelector('#download-btn').addEventListener('click', function () {
+                const zip = new JSZip()
+                brushes.forEach((brush, index) => {
+                    const canvas = createBrushCanvas(brush, 1)
+                    canvas.toBlob((blob) => {
+                        zip.file(`brush_${index}.png`, blob)
+                        if (index === brushes.length - 1) {
+                            zip.generateAsync({ type: 'blob' }).then((content) => {
+                                saveAs(content, 'procreate_brushes.zip')
+                            })
+                        }
+                    })
+                })
+            })
+            function createBrushCanvas(brush, cellSize = 1) {
+                const canvas = document.createElement('canvas')
+                canvas.style.imageRendering = 'pixelated'
+                canvas.width = brush[0].length * cellSize
+                canvas.height = brush.length * cellSize
+                const ctx = canvas.getContext('2d')
+                for (let y = 0; y < brush.length; y++) {
+                    for (let x = 0; x < brush[y].length; x++) {
+                        ctx.fillStyle = brush[y][x]
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize)
+                    }
+                }
+                return canvas
+            }
+            function downloadCanvas(canvas, filename) {
+                canvas.toBlob((blob) => {
+                    const link = document.createElement('a')
+                    link.href = URL.createObjectURL(blob)
+                    link.download = filename
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                })
+            }
+            window.addEventListener('load', function () {
+                // Each brush
+                brushes.forEach((brush) => {
+                    const canvas = createBrushCanvas(brush, 10)
+                    document.body.appendChild(canvas)
+                })
+                // Map
+                const canvas = document.createElement('canvas')
+                canvas.style.imageRendering = 'pixelated'
+                canvas.width = brushes.length * 4
+                canvas.height = 4
+                const ctx = canvas.getContext('2d')
+                brushes.forEach((brush, index) => {
+                    for (let y = 0; y < brush.length; y++) {
+                        for (let x = 0; x < brush[y].length; x++) {
+                            ctx.fillStyle = brush[y][x]
+                            ctx.fillRect(index * 4 + x, y, 1, 1)
+                        }
+                    }
+                })
+                canvas.addEventListener('click', function () {
+                    downloadCanvas(canvas, 'map.png')
+                })
+                document.body.appendChild(canvas)
+            })
+        </script>
+    </body>
+</html>

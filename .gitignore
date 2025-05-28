@@ -1,0 +1,13 @@
+.DS_Store
+.parcel-cache
+/dist
+/coverage
+/media
+/node_modules
+/platforms
+/tmp
+/www*
+.env
+.keystore*
+/config.xml
+/old
