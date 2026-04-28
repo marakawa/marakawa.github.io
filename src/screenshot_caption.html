@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>screenshot-caption</title>
+        <style>
+            canvas {
+                display: inline-block;
+                width: 300px;
+                border: 1px solid #999;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <input id="file-input" type="file" multiple />
+            <div>
+                <input id="text-input-1" type="text" placeholder="1" autocomplete="off" />
+                <input id="text-input-2" type="text" placeholder="2" autocomplete="off" />
+                <input id="text-input-3" type="text" placeholder="3" autocomplete="off" />
+                <input id="text-input-4" type="text" placeholder="4" autocomplete="off" />
+            </div>
+            <div>
+                <span>Bg</span>
+                <input type="color" id="bg-color" value="#000000" />
+                <span>Outline</span>
+                <input type="color" id="outline-color" value="#ffffff" />
+                <span>Line</span>
+                <input type="color" id="line-color" value="#000000" />
+                <span>Text</span>
+                <input type="color" id="text-color" value="#ffffff" />
+                <span>Italic</span>
+                <input type="checkbox" id="italic-check" />
+            </div>
+            <button id="gen-button">GO</button>
+        </div>
+        <div id="preview"></div>
+        <script type="module" src="./screenshot_caption.ts"></script>
+    </body>
+</html>
