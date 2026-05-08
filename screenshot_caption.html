@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>screenshot-caption</title><style>canvas{border:1px solid #999;width:300px;display:inline-block}</style><body>
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>screenshot-caption</title><style>canvas{border:1px solid #999;width:200px;display:inline-block}</style><body>
         <div>
             <input id=file-input type=file multiple>
             <div>
@@ -8,20 +8,28 @@
                 <input id=text-input-4 placeholder=4 autocomplete=off>
             </div>
             <div>
-                <span>Bg</span>
-                <input type=color id=bg-color value=#000000>
+                <span>BgTop</span>
+                <input type=color id=bg-top-color value=#ffffff>
+                <span>BgBottom</span>
+                <input type=color id=bg-bottom-color value=#000000>
                 <span>Outline</span>
                 <input type=color id=outline-color value=#ffffff>
                 <span>Line</span>
                 <input type=color id=line-color value=#000000>
                 <span>Text</span>
                 <input type=color id=text-color value=#ffffff>
-                <span>Italic</span>
-                <input type=checkbox id=italic-check>
+            </div>
+            <div>
+                <span>Italic:</span>
+                <input type=checkbox id=italic-check checked>
+                <span>Up:</span>
+                <input type=checkbox id=up-check checked>
+                <span>Random:</span>
+                <input type=checkbox id=random-check checked>
             </div>
             <button id=gen-button>GO</button>
         </div>
         <div id=preview></div>
-        <script type=module src=screenshot_caption.c516c402.js></script>
+        <script type=module src=screenshot_caption.b3c5f94c.js></script>
     
 
