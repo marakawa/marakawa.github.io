@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Voxel Edit</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                color: #fff;
+                background-color: #000;
+            }
+            canvas {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            button {
+                width: 50px;
+                height: 50px;
+                font-size: 32px;
+                z-index: 10;
+            }
+            .controls {
+                position: fixed;
+                bottom: 15px;
+                left: 50%;
+                transform: translate(-50%, 0);
+                white-space: nowrap;
+            }
+            .reset-btn {
+                position: fixed;
+                top: 15px;
+                left: 50%;
+                transform: translate(-50%, 0);
+            }
+        </style>
+    </head>
+    <body bgcolor="#000000" text="#ffffff">
+        <div class="container"></div>
+        <div class="controls">
+            <button class="color-btn">C</button>
+            <button class="black-btn">B</button>
+            <span>・</span>
+            <button class="add-btn">+</button>
+            <button class="remove-btn">-</button>
+            <button class="remove-line-btn">-*</button>
+        </div>
+        <button class="reset-btn">!</button>
+        <script type="module" src="./voxel_edit.ts"></script>
+    </body>
+</html>
