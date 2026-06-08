@@ -5,17 +5,26 @@ const WORLD_SIZE = 8
 const LS_KEY = 'VOXEL_STATE'
 const w3 = createWorld3d(WORLD_SIZE, document.querySelector('.container') as HTMLDivElement)
 
+type COLOR_TYPE = 'DARK' | 'LIGHT' | 'BLACK' | 'WHITE'
+type PUT_TYPE = 'PAINT' | 'ADD' | 'REMOVE' | 'REMOVE_LINE'
+
 // Controls
-let colorType = 'COLOR'
-let putType = 'ADD'
-const colorButton = document.querySelector('.color-btn') as HTMLButtonElement
+let colorType: COLOR_TYPE = 'DARK'
+let putType: PUT_TYPE = 'ADD'
+const darkButton = document.querySelector('.dark-btn') as HTMLButtonElement
+const lightButton = document.querySelector('.light-btn') as HTMLButtonElement
 const blackButton = document.querySelector('.black-btn') as HTMLButtonElement
+const whiteButton = document.querySelector('.white-btn') as HTMLButtonElement
+const paintButton = document.querySelector('.paint-btn') as HTMLButtonElement
 const addButton = document.querySelector('.add-btn') as HTMLButtonElement
 const removeButton = document.querySelector('.remove-btn') as HTMLButtonElement
 const removeLineButton = document.querySelector('.remove-line-btn') as HTMLButtonElement
 const resetButton = document.querySelector('.reset-btn') as HTMLButtonElement
-colorButton.addEventListener('pointerdown', () => (colorType = 'COLOR'))
+darkButton.addEventListener('pointerdown', () => (colorType = 'DARK'))
+lightButton.addEventListener('pointerdown', () => (colorType = 'LIGHT'))
 blackButton.addEventListener('pointerdown', () => (colorType = 'BLACK'))
+whiteButton.addEventListener('pointerdown', () => (colorType = 'WHITE'))
+paintButton.addEventListener('pointerdown', () => (putType = 'PAINT'))
 addButton.addEventListener('pointerdown', () => (putType = 'ADD'))
 removeButton.addEventListener('pointerdown', () => (putType = 'REMOVE'))
 removeLineButton.addEventListener('pointerdown', () => (putType = 'REMOVE_LINE'))
@@ -38,8 +47,9 @@ function createBox(x: number, y: number, z: number, color: string) {
 
 // History
 interface BoxHistory {
-    type: string // "ADD" "REMOVE" "REMOVE_LINE"
+    type: PUT_TYPE
     box: Box
+    value?: string
 }
 
 // State
@@ -93,6 +103,22 @@ function removeVoxel(box: Box) {
     save()
     w3.render()
 }
+function paintVoxel(box: Box, color: string) {
+    const index = state.boxes.findIndex((b) => box.x === b.x && box.y === b.y && box.z === b.z)
+    if (index === -1) {
+        return
+    }
+    // Mesh
+    const mesh = state._boxMeshes[index]
+    // Paint
+    if (!w3.materials[color]) {
+        w3.materials[color] = new THREE.MeshStandardMaterial({ color })
+    }
+    mesh.material = w3.materials[color]
+    state.boxes[index].color = color
+    save()
+    w3.render()
+}
 function save() {
     const savedState: any = { ...state }
     Object.keys(savedState).forEach((stateKey) => {
@@ -115,14 +141,11 @@ function load() {
     })
 }
 load()
-function xyzToColor(x: number, y: number, z: number) {
-    return `hsl(${(y / WORLD_SIZE) * 0.3 * 360}, ${30 + x * 5}%, ${30 + z * 5}%)`
-}
 if (state._boxMeshes.length === 0) {
     for (let x = 0; x < WORLD_SIZE; x++) {
         for (let y = 0; y < WORLD_SIZE; y++) {
             for (let z = 0; z < WORLD_SIZE; z++) {
-                const box = createBox(x, y, z, xyzToColor(x, y, z))
+                const box = createBox(x, y, z, getColor('DARK'))
                 addVoxel(box)
             }
         }
@@ -136,7 +159,9 @@ function redo() {
     if (!state._boxHistories[nextHistoryIndex]) return
     const boxHistory = state._boxHistories[nextHistoryIndex]
 
-    if (boxHistory.type === 'REMOVE') {
+    if (boxHistory.type === 'PAINT') {
+        paintVoxel(boxHistory.box, boxHistory.box.color)
+    } else if (boxHistory.type === 'REMOVE') {
         removeVoxel(boxHistory.box)
     } else if (boxHistory.type === 'ADD') {
         addVoxel(boxHistory.box)
@@ -148,17 +173,19 @@ function undo() {
     if (!state._boxHistories[currentHistoryIndex]) return
     const boxHistory = state._boxHistories[currentHistoryIndex]
 
-    if (boxHistory.type === 'REMOVE') {
+    if (boxHistory.type === 'PAINT') {
+        paintVoxel(boxHistory.box, boxHistory.value || '#f0f')
+    } else if (boxHistory.type === 'REMOVE') {
         addVoxel(boxHistory.box)
     } else if (boxHistory.type === 'ADD') {
         removeVoxel(boxHistory.box)
     }
     state._boxHistoryIndex = currentHistoryIndex - 1
 }
-function pushHistory(type: string, box: Box) {
+function pushHistory(type: PUT_TYPE, box: Box, value: string | undefined = undefined) {
     state._boxHistoryIndex += 1
     state._boxHistories = state._boxHistories.slice(0, state._boxHistoryIndex)
-    state._boxHistories.push({ type, box })
+    state._boxHistories.push({ type, box: { ...box }, value })
 }
 
 // Remove
@@ -170,6 +197,28 @@ function shoot(event: PointerEvent) {
     raycaster.setFromCamera(mouse, w3.camera)
     const intersects = raycaster.intersectObjects(state._boxMeshes)
     if (intersects.length === 0) return
+    // PAINT
+    if (putType === 'PAINT') {
+        intersects.forEach((intersect, i) => {
+            if (putType === 'PAINT' && i > 0) return
+            const hit = intersect.object as THREE.Mesh
+            const cb = hit.userData.box as Box
+            const box = cb
+            const prevColor = box.color
+            const nextColor = getColor(colorType)
+            paintVoxel(box, nextColor)
+            pushHistory('PAINT', box, prevColor)
+            const mirrorX = WORLD_SIZE - 1 - box.x
+            const existsBox = state.boxes.find(
+                (b) => b.x === mirrorX && b.y === box.y && b.z === box.z,
+            )
+            if (existsBox) {
+                const mirrorBox = existsBox
+                paintVoxel(mirrorBox, nextColor)
+                pushHistory('PAINT', mirrorBox, prevColor)
+            }
+        })
+    }
     // REMOVE
     if (putType === 'REMOVE' || putType === 'REMOVE_LINE') {
         intersects.forEach((intersect, i) => {
@@ -197,16 +246,14 @@ function shoot(event: PointerEvent) {
             const hit = intersect.object as THREE.Mesh
             const cb = hit.userData.box as Box
             let box: Box
-            let color = colorType === 'COLOR' ? xyzToColor(cb.x, cb.y, cb.z) : '#333333'
+            let color = getColor(colorType)
             if (intersect.point.x <= cb.x - 0.5) {
                 box = createBox(cb.x - 1, cb.y, cb.z, color)
             } else if (intersect.point.x >= cb.x + 0.5) {
                 box = createBox(cb.x + 1, cb.y, cb.z, color)
             } else if (intersect.point.y <= cb.y - 0.5) {
-                color = colorType === 'COLOR' ? xyzToColor(cb.x, cb.y - 1, cb.z) : '#333333'
                 box = createBox(cb.x, cb.y - 1, cb.z, color)
             } else if (intersect.point.y >= cb.y + 0.5) {
-                color = colorType === 'COLOR' ? xyzToColor(cb.x, cb.y + 1, cb.z) : '#333333'
                 box = createBox(cb.x, cb.y + 1, cb.z, color)
             } else if (intersect.point.z <= cb.z - 0.5) {
                 box = createBox(cb.x, cb.y, cb.z - 1, color)
@@ -225,6 +272,18 @@ function shoot(event: PointerEvent) {
                 pushHistory('ADD', mirrorBox)
             }
         })
+    }
+}
+
+function getColor(colorType: COLOR_TYPE) {
+    if (colorType === 'DARK') {
+        return '#339'
+    } else if (colorType === 'LIGHT') {
+        return '#669'
+    } else if (colorType === 'BLACK') {
+        return '#000'
+    } else {
+        return '#ccc'
     }
 }
 

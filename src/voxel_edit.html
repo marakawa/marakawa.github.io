@@ -10,7 +10,7 @@
                 margin: 0;
                 padding: 0;
                 color: #fff;
-                background-color: #000;
+                background-color: #666666;
             }
             canvas {
                 position: fixed;
@@ -19,9 +19,9 @@
                 transform: translate(-50%, -50%);
             }
             button {
-                width: 50px;
-                height: 50px;
-                font-size: 32px;
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
                 z-index: 10;
             }
             .controls {
@@ -39,12 +39,16 @@
             }
         </style>
     </head>
-    <body bgcolor="#000000" text="#ffffff">
+    <body bgcolor="#666666" text="#ffffff">
         <div class="container"></div>
         <div class="controls">
-            <button class="color-btn">C</button>
+            <button class="dark-btn">D</button>
+            <button class="light-btn">L</button>
             <button class="black-btn">B</button>
-            <span>・</span>
+            <button class="white-btn">W</button>
+            <br />
+            <br />
+            <button class="paint-btn">P</button>
             <button class="add-btn">+</button>
             <button class="remove-btn">-</button>
             <button class="remove-line-btn">-*</button>
