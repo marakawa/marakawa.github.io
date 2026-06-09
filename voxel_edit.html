@@ -1,18 +1,25 @@
-<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Voxel Edit</title><style>html,body{color:#fff;background-color:#666;margin:0;padding:0}canvas{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}button{z-index:10;width:30px;height:30px;font-size:16px}.controls{white-space:nowrap;position:fixed;bottom:15px;left:50%;transform:translate(-50%)}.reset-btn{position:fixed;top:15px;left:50%;transform:translate(-50%)}</style><body bgcolor=#666666 text=#ffffff>
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Voxel Edit</title><style>html,body{color:#fff;background-color:#666;margin:0;padding:0}canvas{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}button{z-index:10;width:50px;height:50px;font-size:16px}.controls{white-space:nowrap;position:fixed;left:50%;transform:translate(-50%)}.controls--top{top:15px}.controls--bottom{bottom:15px}</style><body bgcolor=#666666 text=#ffffff>
         <div class=container></div>
-        <div class=controls>
-            <button class=dark-btn>D</button>
-            <button class=light-btn>L</button>
-            <button class=black-btn>B</button>
-            <button class=white-btn>W</button>
+        <div class="controls controls--top">
+            <button class=undo-btn>U</button>
+            <button class=redo-btn>R</button>
+            <button class=reset-btn>!</button>
             <br>
+            <button class=front-btn>F</button>
+            <button class=side-btn>S</button>
+            <button class=top-btn>T</button>
+        </div>
+        <div class="controls controls--bottom">
+            <button class=color1-btn>1</button>
+            <button class=color2-btn>2</button>
+            <button class=color3-btn>3</button>
+            <button class=color4-btn>4</button>
             <br>
             <button class=paint-btn>P</button>
             <button class=add-btn>+</button>
             <button class=remove-btn>-</button>
             <button class=remove-line-btn>-*</button>
         </div>
-        <button class=reset-btn>!</button>
-        <script type=module src=voxel_edit.a625747d.js></script>
+        <script type=module src=voxel_edit.648c2131.js></script>
     
 
