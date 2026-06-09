@@ -19,41 +19,47 @@
                 transform: translate(-50%, -50%);
             }
             button {
-                width: 30px;
-                height: 30px;
+                width: 50px;
+                height: 50px;
                 font-size: 16px;
                 z-index: 10;
             }
             .controls {
                 position: fixed;
-                bottom: 15px;
                 left: 50%;
                 transform: translate(-50%, 0);
                 white-space: nowrap;
             }
-            .reset-btn {
-                position: fixed;
+            .controls--top {
                 top: 15px;
-                left: 50%;
-                transform: translate(-50%, 0);
+            }
+            .controls--bottom {
+                bottom: 15px;
             }
         </style>
     </head>
     <body bgcolor="#666666" text="#ffffff">
         <div class="container"></div>
-        <div class="controls">
-            <button class="dark-btn">D</button>
-            <button class="light-btn">L</button>
-            <button class="black-btn">B</button>
-            <button class="white-btn">W</button>
+        <div class="controls controls--top">
+            <button class="undo-btn">U</button>
+            <button class="redo-btn">R</button>
+            <button class="reset-btn">!</button>
             <br />
+            <button class="front-btn">F</button>
+            <button class="side-btn">S</button>
+            <button class="top-btn">T</button>
+        </div>
+        <div class="controls controls--bottom">
+            <button class="color1-btn">1</button>
+            <button class="color2-btn">2</button>
+            <button class="color3-btn">3</button>
+            <button class="color4-btn">4</button>
             <br />
             <button class="paint-btn">P</button>
             <button class="add-btn">+</button>
             <button class="remove-btn">-</button>
             <button class="remove-line-btn">-*</button>
         </div>
-        <button class="reset-btn">!</button>
         <script type="module" src="./voxel_edit.ts"></script>
     </body>
 </html>

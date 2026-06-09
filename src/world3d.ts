@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
-export function createWorld3d(worldSize: number, container: HTMLElement) {
+export function createWorld3d(worldSize: number, container: HTMLElement, pixelRatio = 0.125) {
     // Back
     const sceneBack = new THREE.Scene()
     const rendererBack = new THREE.WebGLRenderer({ antialias: false, alpha: true })
@@ -15,7 +15,7 @@ export function createWorld3d(worldSize: number, container: HTMLElement) {
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true })
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.domElement.style.imageRendering = 'pixelated'
-    renderer.setPixelRatio(0.125)
+    renderer.setPixelRatio(pixelRatio)
     container.appendChild(renderer.domElement)
 
     // Camera
@@ -85,5 +85,20 @@ export function createWorld3d(worldSize: number, container: HTMLElement) {
         viewSize,
         materials,
         render,
+        showFront: () => {
+            camera.position.set(worldSize / 2, worldSize / 2, worldSize / 2 + viewSize)
+            camera.lookAt(worldSize / 2, worldSize / 2, worldSize / 2)
+            render()
+        },
+        showSide: () => {
+            camera.position.set(worldSize / 2 + viewSize, worldSize / 2, worldSize / 2)
+            camera.lookAt(worldSize / 2, worldSize / 2, worldSize / 2)
+            render()
+        },
+        showTop: () => {
+            camera.position.set(worldSize / 2, worldSize / 2 + viewSize, worldSize / 2)
+            camera.lookAt(worldSize / 2, worldSize / 2, worldSize / 2)
+            render()
+        },
     }
 }

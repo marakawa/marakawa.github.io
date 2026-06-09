@@ -1,37 +1,49 @@
 import * as THREE from 'three'
 import { createWorld3d } from './world3d'
 
-const WORLD_SIZE = 8
+const WORLD_SIZE = 16
 const LS_KEY = 'VOXEL_STATE'
-const w3 = createWorld3d(WORLD_SIZE, document.querySelector('.container') as HTMLDivElement)
+const w3 = createWorld3d(WORLD_SIZE, document.querySelector('.container') as HTMLDivElement, 1)
 
-type COLOR_TYPE = 'DARK' | 'LIGHT' | 'BLACK' | 'WHITE'
+type COLOR_TYPE = 'COLOR1' | 'COLOR2' | 'COLOR3' | 'COLOR4'
 type PUT_TYPE = 'PAINT' | 'ADD' | 'REMOVE' | 'REMOVE_LINE'
 
 // Controls
-let colorType: COLOR_TYPE = 'DARK'
+let colorType: COLOR_TYPE = 'COLOR1'
 let putType: PUT_TYPE = 'ADD'
-const darkButton = document.querySelector('.dark-btn') as HTMLButtonElement
-const lightButton = document.querySelector('.light-btn') as HTMLButtonElement
-const blackButton = document.querySelector('.black-btn') as HTMLButtonElement
-const whiteButton = document.querySelector('.white-btn') as HTMLButtonElement
+const undoButton = document.querySelector('.undo-btn') as HTMLButtonElement
+const redoButton = document.querySelector('.redo-btn') as HTMLButtonElement
+const resetButton = document.querySelector('.reset-btn') as HTMLButtonElement
+const frontButton = document.querySelector('.front-btn') as HTMLButtonElement
+const sideButton = document.querySelector('.side-btn') as HTMLButtonElement
+const topButton = document.querySelector('.top-btn') as HTMLButtonElement
+const color1Button = document.querySelector('.color1-btn') as HTMLButtonElement
+const color2Button = document.querySelector('.color2-btn') as HTMLButtonElement
+const color3Button = document.querySelector('.color3-btn') as HTMLButtonElement
+const color4Button = document.querySelector('.color4-btn') as HTMLButtonElement
 const paintButton = document.querySelector('.paint-btn') as HTMLButtonElement
 const addButton = document.querySelector('.add-btn') as HTMLButtonElement
 const removeButton = document.querySelector('.remove-btn') as HTMLButtonElement
 const removeLineButton = document.querySelector('.remove-line-btn') as HTMLButtonElement
-const resetButton = document.querySelector('.reset-btn') as HTMLButtonElement
-darkButton.addEventListener('pointerdown', () => (colorType = 'DARK'))
-lightButton.addEventListener('pointerdown', () => (colorType = 'LIGHT'))
-blackButton.addEventListener('pointerdown', () => (colorType = 'BLACK'))
-whiteButton.addEventListener('pointerdown', () => (colorType = 'WHITE'))
-paintButton.addEventListener('pointerdown', () => (putType = 'PAINT'))
-addButton.addEventListener('pointerdown', () => (putType = 'ADD'))
-removeButton.addEventListener('pointerdown', () => (putType = 'REMOVE'))
-removeLineButton.addEventListener('pointerdown', () => (putType = 'REMOVE_LINE'))
-resetButton.addEventListener('pointerdown', () => {
+
+undoButton.addEventListener('click', () => undo())
+redoButton.addEventListener('click', () => redo())
+resetButton.addEventListener('click', () => {
     localStorage.removeItem(LS_KEY)
     location.reload()
 })
+frontButton.addEventListener('click', () => w3.showFront())
+sideButton.addEventListener('click', () => w3.showSide())
+topButton.addEventListener('click', () => w3.showTop())
+
+color1Button.addEventListener('click', () => (colorType = 'COLOR1'))
+color2Button.addEventListener('click', () => (colorType = 'COLOR2'))
+color3Button.addEventListener('click', () => (colorType = 'COLOR3'))
+color4Button.addEventListener('click', () => (colorType = 'COLOR4'))
+paintButton.addEventListener('click', () => (putType = 'PAINT'))
+addButton.addEventListener('click', () => (putType = 'ADD'))
+removeButton.addEventListener('click', () => (putType = 'REMOVE'))
+removeLineButton.addEventListener('click', () => (putType = 'REMOVE_LINE'))
 
 // Box
 interface Box {
@@ -48,7 +60,7 @@ function createBox(x: number, y: number, z: number, color: string) {
 // History
 interface BoxHistory {
     type: PUT_TYPE
-    box: Box
+    boxes: Box[]
     value?: string
 }
 
@@ -143,9 +155,14 @@ function load() {
 load()
 if (state._boxMeshes.length === 0) {
     for (let x = 0; x < WORLD_SIZE; x++) {
-        for (let y = 0; y < WORLD_SIZE; y++) {
-            for (let z = 0; z < WORLD_SIZE; z++) {
-                const box = createBox(x, y, z, getColor('DARK'))
+        for (let z = 0; z < WORLD_SIZE; z++) {
+            if (
+                x === Math.floor(WORLD_SIZE / 2) ||
+                x === Math.floor(WORLD_SIZE / 2 - 1) ||
+                z === Math.floor(WORLD_SIZE / 2) ||
+                z === Math.floor(WORLD_SIZE / 2 - 1)
+            ) {
+                const box = createBox(x, -1, z, '#fff')
                 addVoxel(box)
             }
         }
@@ -160,11 +177,17 @@ function redo() {
     const boxHistory = state._boxHistories[nextHistoryIndex]
 
     if (boxHistory.type === 'PAINT') {
-        paintVoxel(boxHistory.box, boxHistory.box.color)
+        boxHistory.boxes.forEach((box) => {
+            paintVoxel(box, box.color)
+        })
     } else if (boxHistory.type === 'REMOVE') {
-        removeVoxel(boxHistory.box)
+        boxHistory.boxes.forEach((box) => {
+            removeVoxel(box)
+        })
     } else if (boxHistory.type === 'ADD') {
-        addVoxel(boxHistory.box)
+        boxHistory.boxes.forEach((box) => {
+            addVoxel(box)
+        })
     }
     state._boxHistoryIndex = nextHistoryIndex
 }
@@ -174,18 +197,24 @@ function undo() {
     const boxHistory = state._boxHistories[currentHistoryIndex]
 
     if (boxHistory.type === 'PAINT') {
-        paintVoxel(boxHistory.box, boxHistory.value || '#f0f')
+        boxHistory.boxes.forEach((box) => {
+            paintVoxel(box, boxHistory.value || '#f0f')
+        })
     } else if (boxHistory.type === 'REMOVE') {
-        addVoxel(boxHistory.box)
+        boxHistory.boxes.forEach((box) => {
+            addVoxel(box)
+        })
     } else if (boxHistory.type === 'ADD') {
-        removeVoxel(boxHistory.box)
+        boxHistory.boxes.forEach((box) => {
+            removeVoxel(box)
+        })
     }
     state._boxHistoryIndex = currentHistoryIndex - 1
 }
-function pushHistory(type: PUT_TYPE, box: Box, value: string | undefined = undefined) {
+function pushHistory(type: PUT_TYPE, boxes: Box[], value: string | undefined = undefined) {
     state._boxHistoryIndex += 1
     state._boxHistories = state._boxHistories.slice(0, state._boxHistoryIndex)
-    state._boxHistories.push({ type, box: { ...box }, value })
+    state._boxHistories.push({ type, boxes: [...boxes.map((b) => ({ ...b }))], value })
 }
 
 // Remove
@@ -204,18 +233,18 @@ function shoot(event: PointerEvent) {
             const hit = intersect.object as THREE.Mesh
             const cb = hit.userData.box as Box
             const box = cb
+            if (box.y < 0) return
             const prevColor = box.color
             const nextColor = getColor(colorType)
-            paintVoxel(box, nextColor)
-            pushHistory('PAINT', box, prevColor)
             const mirrorX = WORLD_SIZE - 1 - box.x
             const existsBox = state.boxes.find(
                 (b) => b.x === mirrorX && b.y === box.y && b.z === box.z,
             )
             if (existsBox) {
                 const mirrorBox = existsBox
+                paintVoxel(box, nextColor)
                 paintVoxel(mirrorBox, nextColor)
-                pushHistory('PAINT', mirrorBox, prevColor)
+                pushHistory('PAINT', [box, mirrorBox], prevColor)
             }
         })
     }
@@ -226,16 +255,16 @@ function shoot(event: PointerEvent) {
             const hit = intersect.object as THREE.Mesh
             const cb = hit.userData.box as Box
             const box = cb
-            removeVoxel(box)
-            pushHistory('REMOVE', box)
+            if (box.y < 0) return
             const mirrorX = WORLD_SIZE - 1 - box.x
             const existsBox = state.boxes.find(
                 (b) => b.x === mirrorX && b.y === box.y && b.z === box.z,
             )
             if (existsBox) {
                 const mirrorBox = existsBox
+                removeVoxel(box)
                 removeVoxel(mirrorBox)
-                pushHistory('REMOVE', mirrorBox)
+                pushHistory('REMOVE', [box, mirrorBox])
             }
         })
     }
@@ -260,30 +289,30 @@ function shoot(event: PointerEvent) {
             } else {
                 box = createBox(cb.x, cb.y, cb.z + 1, color)
             }
-            addVoxel(box)
-            pushHistory('ADD', box)
+            if (box.y < 0) return
             const mirrorX = WORLD_SIZE - 1 - box.x
             const existsBox = state.boxes.find(
                 (b) => b.x === mirrorX && b.y === box.y && b.z === box.z,
             )
             if (!existsBox) {
                 const mirrorBox = createBox(mirrorX, box.y, box.z, color)
+                addVoxel(box)
                 addVoxel(mirrorBox)
-                pushHistory('ADD', mirrorBox)
+                pushHistory('ADD', [box, mirrorBox])
             }
         })
     }
 }
 
 function getColor(colorType: COLOR_TYPE) {
-    if (colorType === 'DARK') {
-        return '#339'
-    } else if (colorType === 'LIGHT') {
-        return '#669'
-    } else if (colorType === 'BLACK') {
-        return '#000'
+    if (colorType === 'COLOR1') {
+        return '#336'
+    } else if (colorType === 'COLOR2') {
+        return '#66c'
+    } else if (colorType === 'COLOR3') {
+        return '#99e'
     } else {
-        return '#ccc'
+        return '#eee'
     }
 }
 
@@ -299,7 +328,10 @@ window.addEventListener('pointermove', () => {
 })
 window.addEventListener('pointerup', (e) => {
     if (!downPointer) return
-    if (Math.hypot(e.pageY - downPointer.y, e.pageX - downPointer.x) < 10) {
+    if (
+        e.target === w3.renderer.domElement &&
+        Math.hypot(e.pageY - downPointer.y, e.pageX - downPointer.x) < 10
+    ) {
         shoot(e)
     }
     w3.render()
