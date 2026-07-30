@@ -1,0 +1,2 @@
+const e=document.querySelector("#input"),t=document.querySelector("#output");e.addEventListener("keyup",()=>{let u=e.value.trim().split("\n").filter(e=>e.trim().length),r="";u.forEach(e=>{r+=`<p><a href="https://chatgpt.com/?q=${encodeURIComponent(`\u{5358}\u{8A9E}\u{3054}\u{3068}\u{306B}\u{6559}\u{3048}\u{3066}\u{FF01}\u{3000}${e}`)}" target="_blank">${e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}</a></p>`}),t.innerHTML=r});
+//# sourceMappingURL=explain_lines.e50896ee.js.map
