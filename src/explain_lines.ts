@@ -1,3 +1,4 @@
+const flagInput = document.querySelector('#flag-input') as HTMLInputElement
 const inputTextarea = document.querySelector('#input') as HTMLTextAreaElement
 const outputDiv = document.querySelector('#output') as HTMLDivElement
 
@@ -15,9 +16,10 @@ inputTextarea.addEventListener('keyup', () => {
         .trim()
         .split('\n')
         .filter((row) => row.trim().length)
+    const flag = flagInput.value.trim()
     let html = ''
     inputTexts.forEach((row) => {
-        html += `<p><a href="https://chatgpt.com/?q=${encodeURIComponent(`単語ごとに教えて！　${row}`)}" target="_blank">${esc(row)}</a></p>`
+        html += `<p><a href="https://chatgpt.com/?q=${encodeURIComponent(`単語ごとに教えて！${flag}→　${row}`)}" target="_blank">${esc(row)}</a></p>`
     })
     outputDiv.innerHTML = html
 })
