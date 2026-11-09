@@ -1,7 +1,9 @@
 import JSZip from 'jszip'
+import { emojiDict } from './text_to_gboard_dict'
 
 const inputElem = document.querySelector('#input') as HTMLTextAreaElement
 const outputElem = document.querySelector('#output') as HTMLTextAreaElement
+const lenInputElem = document.querySelector('#len-input') as HTMLInputElement
 const langInputElem = document.querySelector('#lang-input') as HTMLInputElement
 const updateBtnElem = document.querySelector('#update-btn') as HTMLButtonElement
 const dlBtnElem = document.querySelector('#dl-btn') as HTMLButtonElement
@@ -9,8 +11,10 @@ const dlBtnElem = document.querySelector('#dl-btn') as HTMLButtonElement
 type Dict = {
     [word: string]: string // shortcut (Optional)
 }
+
 function createDict(): Dict {
-    let dict: Dict = {}
+    let dict: Dict = emojiDict
+    const shortcutLength = parseInt(lenInputElem.value)
     const lowerTexts = inputElem.value.toLowerCase().split('\n')
     for (let rawLine of lowerTexts) {
         const line = rawLine.trim()
@@ -18,7 +22,7 @@ function createDict(): Dict {
         const delimiter = /[,\/]/
         if (line.indexOf('　') >= 0) {
             const words = line.split('　')
-            const shortcut = words[0].trim()
+            const shortcut = words[0].trim().slice(0, shortcutLength)
             words.slice(1).forEach((rawWords) => {
                 const words = rawWords.split(delimiter)
                 for (let rawWord of words) {
@@ -31,7 +35,7 @@ function createDict(): Dict {
             const words = line.split(delimiter)
             words.forEach((rawWord) => {
                 const word = rawWord.trim()
-                dict[word] = word
+                dict[word] = word.slice(0, shortcutLength)
             })
         } else {
             continue
