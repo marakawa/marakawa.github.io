@@ -63,7 +63,7 @@ async function generateGboardZip(
     const lang = langInputElem.value.trim()
     let txtContent = '# Gboard Dictionary version:1\n'
     for (const [word, shortcut] of Object.entries(jsonInput)) {
-        txtContent += `${word}\t${shortcut}\t${lang}\n`
+        txtContent += `${shortcut}\t${word}\t${lang}\n`
     }
     const zip = new JSZip()
     zip.file(outputFileName, txtContent)

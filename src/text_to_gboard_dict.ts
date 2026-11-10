@@ -1,4 +1,6 @@
 export const emojiDict: { [emoji: string]: string } = {
+    ㅋ: 'k',
+    ㅎ: 'h',
     '🐶': 'い',
     '🌀': 'う',
     '🐸': 'か',
