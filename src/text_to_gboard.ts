@@ -8,12 +8,10 @@ const langInputElem = document.querySelector('#lang-input') as HTMLInputElement
 const updateBtnElem = document.querySelector('#update-btn') as HTMLButtonElement
 const dlBtnElem = document.querySelector('#dl-btn') as HTMLButtonElement
 
-type Dict = {
-    [word: string]: string // shortcut (Optional)
-}
+type Dict = string[][]
 
 function createDict(): Dict {
-    let dict: Dict = emojiDict
+    let dict: Dict = JSON.parse(JSON.stringify(emojiDict))
     const shortcutLength = parseInt(lenInputElem.value)
     const lowerTexts = inputElem.value.toLowerCase().split('\n')
     for (let rawLine of lowerTexts) {
@@ -28,20 +26,20 @@ function createDict(): Dict {
                 for (let rawWord of words) {
                     const word = rawWord.trim()
                     if (word.trim().length === 0) continue
-                    dict[word] = shortcut
+                    dict.push([word, shortcut])
                 }
             })
         } else if (line.match(delimiter)) {
             const words = line.split(delimiter)
             words.forEach((rawWord) => {
                 const word = rawWord.trim()
-                dict[word] = word.slice(0, shortcutLength)
+                dict.push([word, word.slice(0, shortcutLength)])
             })
         } else {
             continue
         }
     }
-    dict = Object.fromEntries(Object.entries(dict).sort((a, b) => a[0].localeCompare(b[0])))
+    dict = dict.sort((a, b) => a[0].localeCompare(b[0]))
     return dict
 }
 
@@ -62,7 +60,7 @@ async function generateGboardZip(
 ): Promise<Blob> {
     const lang = langInputElem.value.trim()
     let txtContent = '# Gboard Dictionary version:1\n'
-    for (const [word, shortcut] of Object.entries(jsonInput)) {
+    for (const [word, shortcut] of jsonInput) {
         txtContent += `${shortcut}\t${word}\t${lang}\n`
     }
     const zip = new JSZip()
